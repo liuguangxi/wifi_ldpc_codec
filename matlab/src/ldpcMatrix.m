@@ -1,12 +1,13 @@
 % ldpcMatrix    Parity check matrices of LDPC.
 % 
 % Calling syntax: 
-%     wifiLdpcParam
+%     ldpcMatrix
 
 % Copyright (c) 2019 Guangxi Liu
 % 
 % This source code is licensed under the MIT license found in the
 % LICENSE file in the root directory of this source tree.
+
 
 % codeword block length 648 bits, code rate 1/2
 Hc648r12.z = 27;
