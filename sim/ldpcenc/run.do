@@ -15,12 +15,12 @@ if [file exists work] {
 vlib work
 
 # Compile the sources.
-vlog ../../../../rtl/ldpcenc/ldpcenc_cu.v
-vlog ../../../../rtl/ldpcenc/ldpcenc_dpu.v
-vlog ../../../../rtl/ldpcenc/ldpcenc_rcs.v
-vlog ../../../../rtl/ldpcenc/ldpcenc_tbl.v
-vlog ../../../../rtl/ldpcenc/ldpcenc.v
-vlog ../../../tb/ldpcenc/tb_ldpcenc.sv
+vlog ../../rtl/ldpcenc/ldpcenc_cu.v
+vlog ../../rtl/ldpcenc/ldpcenc_dpu.v
+vlog ../../rtl/ldpcenc/ldpcenc_rcs.v
+vlog ../../rtl/ldpcenc/ldpcenc_tbl.v
+vlog ../../rtl/ldpcenc/ldpcenc.v
+vlog ../../tb/ldpcenc/tb_ldpcenc.sv
 
 
 # Simulate the design.

@@ -393,7 +393,7 @@ initial begin
     #(ClkPeriod*50)
     $fclose(fpIn);
     $fclose(fpOut);
-    $finish;
+    $stop;
 end
 
 
