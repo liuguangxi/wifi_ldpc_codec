@@ -1,8 +1,9 @@
 # depslib dependency file v1.0
-1562595357 source:e:\project\wifildpc\cmodel\src\ldpc\ldpc_matrix.cpp
+1569939269 source:e:\project\wifildpc\cmodel\src\ldpc\ldpc_matrix.cpp
 	"ldpc/ldpc_matrix.h"
 
-1562595351 e:\project\wifildpc\cmodel\src\ldpc\ldpc_matrix.h
+1570195783 e:\project\wifildpc\cmodel\src\ldpc\ldpc_matrix.h
+	<vector>
 
 1562767736 source:e:\project\wifildpc\cmodel\src\tools\gendataenc.cpp
 	"ldpc/ldpc_encoder.h"
@@ -17,7 +18,7 @@
 
 1502007324 e:\project\wifildpc\cmodel\src\tools\optparse.h
 
-1562681386 source:e:\project\wifildpc\cmodel\src\ldpc\ldpc_encoder.cpp
+1569939382 source:e:\project\wifildpc\cmodel\src\ldpc\ldpc_encoder.cpp
 	"ldpc/ldpc_encoder.h"
 	<cstdlib>
 	<iostream>

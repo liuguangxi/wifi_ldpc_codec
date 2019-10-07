@@ -46,40 +46,40 @@ static void rotateVector(vector<int>& vec, int sh)
 // Return:
 //     codeword data bits, value is 0 or 1
 //----------------------------------------------------------
-static vector<int> ldpcEncodeCore(const vector<int>& dataIn, const MatrixType& h)
+static vector<int> ldpcEncodeCore(const vector<int>& dataIn, const PcmBase& h)
 {
-    int k = h.n - h.m;
-    if (dataIn.size() != static_cast<vector<int>::size_type>(k * h.z)) {
+    int kb = h.nb - h.rb;
+    if (dataIn.size() != static_cast<vector<int>::size_type>(kb * h.z)) {
         cerr << "Error: Invalid input data size" << dataIn.size()
-             << ", should be " << k * h.z << endl;
+             << ", should be " << kb * h.z << endl;
         exit(EXIT_FAILURE);
     }
 
-    vector<int> x(h.m * h.z);
-    vector<int> p(h.m * h.z);
+    vector<int> x(h.rb * h.z);
+    vector<int> p(h.rb * h.z);
     vector<int> t;
 
-    for (int i = 0; i < h.m; i++) {
-        for (int j = 0; j < k; j++) {
+    for (int i = 0; i < h.rb; i++) {
+        for (int j = 0; j < kb; j++) {
             t.assign(dataIn.begin() + j * h.z, dataIn.begin() + (j + 1) * h.z);
-            rotateVector(t, h.base[i * h.n + j]);
+            rotateVector(t, h.base[i * h.nb + j]);
             for (int ii = 0; ii < h.z; ii++)
                 x[i * h.z + ii] = (x[i * h.z + ii] + t[ii]) % 2;
         }
     }
 
-    for (int i = 0; i < h.m; i++) {
+    for (int i = 0; i < h.rb; i++) {
         for (int ii = 0; ii < h.z; ii++)
             p[ii] = (p[ii] + x[i * h.z + ii]) % 2;
     }
 
     t.assign(p.begin(), p.begin() + h.z);
     rotateVector(t, 1);
-    for (int i = 1; i < h.m; i++) {
+    for (int i = 1; i < h.rb; i++) {
         for (int ii = 0; ii < h.z; ii++) {
             if (i == 1)
                 p[i * h.z + ii] = (x[(i - 1) * h.z + ii] + t[ii]) % 2;
-            else if (i == h.m / 2 + 1)
+            else if (i == h.rb / 2 + 1)
                 p[i * h.z + ii] = (x[(i - 1) * h.z + ii] + p[ii] + p[(i - 1) * h.z + ii]) % 2;
             else
                 p[i * h.z + ii] = (x[(i - 1) * h.z + ii] + p[(i - 1) * h.z + ii]) % 2;

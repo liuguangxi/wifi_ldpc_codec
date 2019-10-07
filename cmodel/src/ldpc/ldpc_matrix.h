@@ -14,22 +14,42 @@
 #define LDPC_MATRIX_H
 
 
+#include <vector>
+
+
 enum CodeMode {
-    C648R12, C648R23, C648R34, C648R56,
-    C1296R12, C1296R23, C1296R34, C1296R56,
-    C1944R12, C1944R23, C1944R34, C1944R56
+    N648CR12,       // n = 648,  cr = 1/2
+    N648CR23,       // n = 648,  cr = 2/3
+    N648CR34,       // n = 648,  cr = 3/4
+    N648CR56,       // n = 648,  cr = 5/6
+    N1296CR12,      // n = 1296, cr = 1/2
+    N1296CR23,      // n = 1296, cr = 2/3
+    N1296CR34,      // n = 1296, cr = 3/4
+    N1296CR56,      // n = 1296, cr = 5/6
+    N1944CR12,      // n = 1944, cr = 1/2
+    N1944CR23,      // n = 1944, cr = 2/3
+    N1944CR34,      // n = 1944, cr = 3/4
+    N1944CR56       // n = 1944, cr = 5/6
 };
 
-
-struct MatrixType {
-    int m;    // number of rows
-    int n;    // number of columns
+struct PcmBase {
     int z;    // expand factor
+    int rb;    // number of rows
+    int nb;    // number of columns
     int base[288];    // base matrix
 };
 
+struct PcmGraph {
+    int r;    // number of rows
+    int n;    // number of columns
+    std::vector<int> posChk;    // position of check nodes
+    std::vector<int> posChkIdx;    // position of check nodes index
+    std::vector<int> posVar;    // position of variable nodes
+    std::vector<int> posVarIdx;    // position of variable nodes index
+};
 
-extern const MatrixType Hldpc[12];
+
+extern const PcmBase Hldpc[12];
 
 
 #endif // LDPC_MATRIX_H

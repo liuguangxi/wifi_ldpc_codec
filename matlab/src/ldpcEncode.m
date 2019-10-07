@@ -1,12 +1,11 @@
 % ldpcEncode    LDPC encode binary data.
 %
 % Calling syntax:
-%     cw = ldpcEncode(msg, cwlen, rate)
+%     cw = ldpcEncode(msg, pcm)
 %
 % Input:
-%     z: message data bits, column vector
-%     cwlen: length of codeword, 0:648, 1:1296, 2:1944
-%     rate: code rate, 0:1/2, 1:2/3, 2:3/4, 3:5/6
+%     msg: message data bits, column vector
+%     pcm: struct for parity check matrix base
 %
 % Output:
 %     cw: codeword data bits, column vector
@@ -17,82 +16,43 @@
 % LICENSE file in the root directory of this source tree.
 
 
-function cw = ldpcEncode(msg, cwlen, rate)
+function cw = ldpcEncode(msg, pcm)
 
-% Load LDPC matrices
+% Check input arguments
 if (~isnumeric(msg))
     error('ERROR: msg must be a numeric vector');
 end
 
-ldpcMatrix;
-
-switch cwlen
-    case 0
-        switch rate
-            case 0;    h = Hc648r12;
-            case 1;    h = Hc648r23;
-            case 2;    h = Hc648r34;
-            case 3;    h = Hc648r56;
-            otherwise; error('ERROR: invalid value of rate');
-        end
-    case 1
-        switch rate
-            case 0;    h = Hc1296r12;
-            case 1;    h = Hc1296r23;
-            case 2;    h = Hc1296r34;
-            case 3;    h = Hc1296r56;
-            otherwise; error('ERROR: invalid value of rate');
-        end
-    case 2
-        switch rate
-            case 0;    h = Hc1944r12;
-            case 1;    h = Hc1944r23;
-            case 2;    h = Hc1944r34;
-            case 3;    h = Hc1944r56;
-            otherwise; error('ERROR: invalid value of rate');
-        end
-    case 3
-        switch rate
-            case 0;    h = Hc648r12;
-            case 1;    h = Hc648r23;
-            case 2;    h = Hc648r34;
-            case 3;    h = Hc648r56;
-            otherwise; error('ERROR: invalid value of rate');
-        end
-    otherwise
-        error('ERROR: invalid value of cwlen');
-end
-
 
 % Derive parameters
-z = h.z;
-tab = h.base;
-[nkz, nz] = size(tab);
-kz = nz - nkz;
+z = pcm.z;
+tab = pcm.base;
+[rb, nb] = size(tab);
+kb = nb - rb;
 msgDim = size(msg);
-if (length(msgDim) ~= 2 || msgDim(1) ~= kz * z || msgDim(2) ~= 1)
+if (length(msgDim) ~= 2 || msgDim(1) ~= kb * z || msgDim(2) ~= 1)
     error('ERROR: invalid size of msg');
 end
 
 
 % Encode message bits
-x = zeros(nkz * z, 1);
-p = zeros(nkz * z, 1);
+x = zeros(rb * z, 1);
+p = zeros(rb * z, 1);
 
-for ii = 1:nkz
-    for jj = 1:kz
+for ii = 1:rb
+    for jj = 1:kb
         x((ii-1)*z+1 : ii*z) = mod(x((ii-1)*z+1 : ii*z) +...
             rotateVector(msg((jj-1)*z+1 : jj*z), tab(ii, jj)), 2);
     end
 end
 
-for ii = 1:nkz
+for ii = 1:rb
     p(1:z) = mod(p(1:z) + x((ii-1)*z+1 : ii*z), 2);
 end
-for ii = 1:nkz-1
+for ii = 1:rb-1
     if (ii == 1)
         p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + rotateVector(p(1:z), 1), 2);
-    elseif (ii == nkz/2+1)
+    elseif (ii == rb/2+1)
         p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + p(1:z) + p((ii-1)*z+1 : ii*z), 2);
     else
         p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + p((ii-1)*z+1 : ii*z), 2);

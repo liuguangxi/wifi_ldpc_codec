@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="gendataenc" />
+		<Option title="codecperf" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/gendataenc" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/codecperf" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -16,12 +16,14 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/gendataenc" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/codecperf" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-O3" />
+					<Add option="-march=native -mtune=native" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -29,7 +31,6 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 			<Add directory="../../src" />
@@ -40,8 +41,7 @@
 		<Unit filename="../../src/ldpc/ldpc_encoder.h" />
 		<Unit filename="../../src/ldpc/ldpc_matrix.cpp" />
 		<Unit filename="../../src/ldpc/ldpc_matrix.h" />
-		<Unit filename="../../src/tools/gendataenc.cpp" />
-		<Unit filename="../../src/tools/optparse.h" />
+		<Unit filename="../../src/perf/codecperf.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

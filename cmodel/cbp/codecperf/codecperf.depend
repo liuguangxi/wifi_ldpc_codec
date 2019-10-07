@@ -1,0 +1,35 @@
+# depslib dependency file v1.0
+1570458767 source:e:\project\wifildpc\cmodel\src\ldpc\ldpc_decoder.cpp
+	"ldpc/ldpc_decoder.h"
+	<cstdlib>
+	<cmath>
+	<iostream>
+	<utility>
+	<algorithm>
+
+1570196059 e:\project\wifildpc\cmodel\src\ldpc\ldpc_decoder.h
+	"ldpc/ldpc_matrix.h"
+	<vector>
+
+1570195783 e:\project\wifildpc\cmodel\src\ldpc\ldpc_matrix.h
+	<vector>
+
+1569939382 source:e:\project\wifildpc\cmodel\src\ldpc\ldpc_encoder.cpp
+	"ldpc/ldpc_encoder.h"
+	<cstdlib>
+	<iostream>
+	<algorithm>
+
+1562631447 e:\project\wifildpc\cmodel\src\ldpc\ldpc_encoder.h
+	"ldpc/ldpc_matrix.h"
+	<vector>
+
+1569939269 source:e:\project\wifildpc\cmodel\src\ldpc\ldpc_matrix.cpp
+	"ldpc/ldpc_matrix.h"
+
+1570456641 source:e:\project\wifildpc\cmodel\src\perf\codecperf.cpp
+	"ldpc/ldpc_encoder.h"
+	"ldpc/ldpc_decoder.h"
+	<cstdlib>
+	<iostream>
+
