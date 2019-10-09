@@ -27,7 +27,7 @@ using namespace std;
 //     idxHldpc: index of Hldpc
 //
 // Return:
-//     Parity check matrix graph for Hldpc with index idx
+//     Parity check matrix graph for Hldpc with index idxHldpc
 //----------------------------------------------------------
 static PcmGraph getPcmGraph(int idxHldpc)
 {

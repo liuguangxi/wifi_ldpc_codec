@@ -2,17 +2,28 @@
 
 clc;    clear;
 
-addpath ../../../../matlab/src
-
-cwlen = 2;
-rate = 3;
+addpath ../../matlab/src
 
 msg = load('ldpcenc_in.txt');
-cwRtl = load('ldpcenc_out.txt');
+cw = load('ldpcenc_out.txt');
 
-cwRef = ldpcEncode(msg, cwlen, rate);
+cwlen = length(cw) / 648 - 1;
+if (length(cw) / 2 == length(msg))
+    rate = 0;
+elseif (length(cw) * 2 / 3 == length(msg))
+    rate = 1;
+elseif (length(cw) * 3 / 4 == length(msg))
+    rate = 2;    
+elseif (length(cw) * 5 / 6 == length(msg))
+    rate = 3;
+else
+    error('Invalid length of cw or msg');
+end
 
-err = cwRef ~= cwRtl;
+pb = ldpcPcmBase(cwlen, rate);
+cwRef = ldpcEncode(msg, pb);
+
+err = cwRef ~= cw;
 if (any(err))
     disp('FAIL');
 else
