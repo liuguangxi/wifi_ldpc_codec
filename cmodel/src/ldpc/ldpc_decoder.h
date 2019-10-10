@@ -19,18 +19,55 @@
 
 
 //----------------------------------------------------------
+// Get parity check matrix graph
+//
+// Input:
+//     idxHldpc: index of Hldpc
+//
+// Return:
+//     Parity check matrix graph for Hldpc with index idxHldpc
+//----------------------------------------------------------
+PcmGraph getPcmGraph(int idxHldpc);
+
+
+//----------------------------------------------------------
+// LDPC decoder core with sum-product algorithm
+//
+// Input:
+//     dataIn: demapped LLR data
+//     pg: parity check matrix graph
+//     maxIter: maximum number of decoding iterations
+//     earlyExit: whether decoding terminates after all parity checks are satisfied
+//
+// Output:
+//     numIter: actual number of iterations performed
+//
+// Return:
+//     decoded message data bits, value is 0 or 1
+//----------------------------------------------------------
+std::vector<int> ldpcDecodeSPCore(const std::vector<double>& dataIn,
+                                  const PcmGraph& pg, int maxIter, bool earlyExit,
+                                  int &numIter);
+
+
+//----------------------------------------------------------
 // LDPC decoder with sum-product algorithm
 //
 // Input:
 //     dataIn: demapped LLR data
 //     mode: mode of codeword length and code rate
 //     maxIter: maximum number of decoding iterations
+//     earlyExit: whether decoding terminates after all parity checks are satisfied
+//
+// Output:
+//     numIter: actual number of iterations performed
 //
 // Return:
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeSP(const std::vector<double>& dataIn,
-                              CodeMode mode, int maxIter);
+                              CodeMode mode, int maxIter, bool earlyExit,
+                              int &numIter);
 
 
 #endif // LDPC_DECODER_H

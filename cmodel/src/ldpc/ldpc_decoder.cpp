@@ -29,7 +29,7 @@ using namespace std;
 // Return:
 //     Parity check matrix graph for Hldpc with index idxHldpc
 //----------------------------------------------------------
-static PcmGraph getPcmGraph(int idxHldpc)
+PcmGraph getPcmGraph(int idxHldpc)
 {
     const PcmBase& h = Hldpc[idxHldpc];
     int r = h.rb * h.z;
@@ -37,7 +37,6 @@ static PcmGraph getPcmGraph(int idxHldpc)
     PcmGraph pg;
     vector<pair<int, int>> vpos;
     int szvpos;
-    int idx;
 
     pg.r = r;
     pg.n = n;
@@ -50,36 +49,17 @@ static PcmGraph getPcmGraph(int idxHldpc)
             for (int k = 0; k < h.z; k++) {
                 int rowk = i * h.z + k;
                 int colk = j * h.z + (k + sh) % h.z;
-                vpos.push_back(make_pair(rowk, colk));
+                vpos.push_back(make_pair(colk, rowk));
             }
         }
     }
     szvpos = vpos.size();
 
     sort(vpos.begin(), vpos.end());
-    pg.posVarIdx.push_back(0);
-    idx = 1;
     for (int i = 0; i < szvpos; i++) {
-        pg.posVar.push_back(vpos[i].second);
-        if (vpos[i].first == idx) {
-            pg.posVarIdx.push_back(i);
-            idx++;
-        }
-        swap(vpos[i].first, vpos[i].second);
+        pg.cols.push_back(vpos[i].first);
+        pg.rows.push_back(vpos[i].second);
     }
-    pg.posVarIdx.push_back(szvpos);
-
-    sort(vpos.begin(), vpos.end());
-    pg.posChkIdx.push_back(0);
-    idx = 1;
-    for (int i = 0; i < szvpos; i++) {
-        pg.posChk.push_back(vpos[i].second);
-        if (vpos[i].first == idx) {
-            pg.posChkIdx.push_back(i);
-            idx++;
-        }
-    }
-    pg.posChkIdx.push_back(szvpos);
 
     return pg;
 }
@@ -92,12 +72,17 @@ static PcmGraph getPcmGraph(int idxHldpc)
 //     dataIn: demapped LLR data
 //     pg: parity check matrix graph
 //     maxIter: maximum number of decoding iterations
+//     earlyExit: whether decoding terminates after all parity checks are satisfied
+//
+// Output:
+//     numIter: actual number of iterations performed
 //
 // Return:
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
-static vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
-                                    const PcmGraph& pg, int maxIter)
+vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
+                             const PcmGraph& pg, int maxIter, bool earlyExit,
+                             int &numIter)
 {
     if (dataIn.size() != static_cast<vector<int>::size_type>(pg.n)) {
         cerr << "Error: Invalid input data size" << dataIn.size()
@@ -111,51 +96,65 @@ static vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
         exit(EXIT_FAILURE);
     }
 
-    vector<double> vLq(pg.r * pg.n);
-    vector<double> vLr(pg.r * pg.n);
+    int nz = pg.rows.size();
+    vector<double> vLq(nz);
+    vector<double> vLr(nz);
+    vector<double> vLQ(pg.n);
+    vector<int> vLQHard(pg.n);
+    vector<int> vParity(pg.r);
 
-    for (int i = 0; i < pg.n; i++) {
-        for (int j = pg.posChkIdx[i]; j < pg.posChkIdx[i+1]; j++)
-            vLq[pg.posChk[j] * pg.n + i] = dataIn[i];
-    }
+    // Initialize variable nodes
+    for (int i = 0; i < nz; i++)
+        vLq[i] = dataIn[pg.cols[i]];
 
+    // Decode iteratively
+    numIter = 0;
     for (int iter = 1; iter <= maxIter; iter++) {
-        for (int j = 0; j < pg.r; j++) {
-            int lenVj = pg.posVarIdx[j+1] - pg.posVarIdx[j];
-            double vLrji = 1.0;
-            vector<double> vlq(lenVj);
-            for (int i = 0; i < lenVj; i++) {
-                double lq = tanh(vLq[j * pg.n + pg.posVar[pg.posVarIdx[j]+i]] / 2.0);
-                lq = (lq >= 0) ? max(1e-9, lq) : min(-1e-9, lq);
-                vlq[i] = lq;
-                vLrji *= lq;
-            }
-            for (int i = 0; i < lenVj; i++) {
-                int idx = j * pg.n + pg.posVar[pg.posVarIdx[j]+i];
-                double lr = vLrji / vlq[i];
-                lr = max(min(lr, 0.999999999999), -0.999999999999);
-                vLr[idx] = 2 * atanh(lr);
-            }
+        numIter++;
+
+        // Calculate check nodes values from variable node values
+        for (int i = 0; i < nz; i++) {
+            double lq = tanh(vLq[i] / 2.0);
+            lq = (lq >= 0) ? max(1e-9, lq) : min(-1e-9, lq);
+            vLq[i] = lq;
+        }
+        vector<double> prodLq(pg.r, 1.0);
+        for (int i = 0; i < nz; i++)
+            prodLq[pg.rows[i]] *= vLq[i];
+        for (int i = 0; i < nz; i++) {
+            double lr = prodLq[pg.rows[i]] / vLq[i];
+            lr = 2 * atanh(max(min(lr, 0.999999999999), -0.999999999999));
+            vLr[i] = lr;
         }
 
-        for (int i = 0; i < pg.n; i++) {
-            int lenCi = pg.posChkIdx[i+1] - pg.posChkIdx[i];
-            double vLqij = dataIn[i];
-            for (int j = 0; j < lenCi; j++)
-                vLqij += vLr[pg.posChk[pg.posChkIdx[i]+j] * pg.n + i];
-            for (int j = 0; j < lenCi; j++) {
-                int idx = pg.posChk[pg.posChkIdx[i]+j] * pg.n + i;
-                vLq[idx] = vLqij - vLr[idx];
+        // Calculate variable nodes values from check node values
+        for (int i = 0; i < pg.n; i++)
+            vLQ[i] = dataIn[i];
+        for (int i = 0; i < nz; i++)
+            vLQ[pg.cols[i]] += vLr[i];
+        for (int i = 0; i < nz; i++)
+            vLq[i] = vLQ[pg.cols[i]] - vLr[i];
+
+        // Parity checks
+        if (earlyExit) {
+            for (int i = 0; i < pg.n; i++)
+                vLQHard[i] = (vLQ[i] < 0) ? 1 : 0;
+            fill(vParity.begin(), vParity.end(), 0);
+            for (int i = 0; i < nz; i++)
+                vParity[pg.rows[i]] += vLQHard[pg.cols[i]];
+            bool isAllZeros = true;
+            for (int i = 0; i < pg.r; i++) {
+                if (vParity[i] % 2 == 1) {
+                    isAllZeros = false;
+                    break;
+                }
             }
+            if (isAllZeros)
+                break;
         }
     }
 
-    vector<double> vLQ(dataIn);
-    for (int i = 0; i < pg.n; i++) {
-        for (int j = pg.posChkIdx[i]; j < pg.posChkIdx[i+1]; j++)
-            vLQ[i] += vLr[pg.posChk[j] * pg.n + i];
-    }
-
+    // Output hard decision of information bits
     int szMsg = pg.n - pg.r;
     vector<int> y(szMsg);
     for (int i = 0; i < szMsg; i++)
@@ -171,14 +170,19 @@ static vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
 //     dataIn: demapped LLR data
 //     mode: mode of codeword length and code rate
 //     maxIter: maximum number of decoding iterations
+//     earlyExit: whether decoding terminates after all parity checks are satisfied
+//
+// Output:
+//     numIter: actual number of iterations performed
 //
 // Return:
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
 vector<int> ldpcDecodeSP(const vector<double>& dataIn,
-                         CodeMode mode, int maxIter)
+                         CodeMode mode, int maxIter, bool earlyExit,
+                         int &numIter)
 {
     int idxHldpc = static_cast<int>(mode);
     PcmGraph pg = getPcmGraph(idxHldpc);
-    return ldpcDecodeSPCore(dataIn, pg, maxIter);
+    return ldpcDecodeSPCore(dataIn, pg, maxIter, earlyExit, numIter);
 }

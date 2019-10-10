@@ -1,15 +1,17 @@
 % ldpcDecode    LDPC decode LLR data with sum-product algorithm.
 %
 % Calling syntax:
-%     y = ldpcDecode(x, pcm, maxIter)
+%     [y, numIter] = ldpcDecodeSP(x, pcm, maxIter, earlyExit)
 %
 % Input:
 %     x: demapped LLR data, column vector
 %     pcm: struct for parity check matrix graph
 %     maxIter: maximum number of decoding iterations
+%     earlyExit: whether decoding terminates after all parity checks are satisfied
 %
 % Output:
 %     y: decoded data, column vector
+%     numIter: actual number of iterations performed
 
 % Copyright (c) 2019 Guangxi Liu
 %
@@ -17,80 +19,70 @@
 % LICENSE file in the root directory of this source tree.
 
 
-function y = ldpcDecodeSP(x, pcm, maxIter)
+function [y, numIter] = ldpcDecodeSP(x, pcm, maxIter, earlyExit)
 
 % Check input arguments
 if (~isnumeric(x))
-    error('ERROR: msg must be a numeric vector');
+    error('Error: msg must be a numeric vector');
 end
 if (~isnumeric(maxIter) || numel(maxIter) ~= 1 || maxIter <= 0)
-    error('ERROR: maxIter must be a positive integer');
+    error('Error: maxIter must be a positive integer');
 end
 
 
 % Derive parameters
 r = pcm.r;
 n = pcm.n;
-posChk = pcm.posChk;
-posChkIdx = pcm.posChkIdx;
-posVar = pcm.posVar;
-posVarIdx = pcm.posVarIdx;
+rows = pcm.rows;
+cols = pcm.cols;
+nz = length(rows);
 xDim = size(x);
 if (length(xDim) ~= 2 || xDim(1) ~= n || xDim(2) ~= 1)
-    error('ERROR: invalid size of x');
+    error('Error: invalid size of x');
 end
 
 
 % Decode LLR data
-vLq = zeros(r, n);
-vLr = zeros(r, n);
+% Initialize variable nodes
+vLq = x(cols);
 
-for ii = 1:n
-    for jj = posChkIdx(ii):posChkIdx(ii+1)-1
-        vLq(posChk(jj), ii) = x(ii);
-    end
-end
-
+% Decode iteratively
+numIter = 0;
 for iter = 1:maxIter
-    for jj = 1:r
-        setVj = posVar(posVarIdx(jj):posVarIdx(jj+1)-1);
-        lenVj = length(setVj);
-        for ii = 1:lenVj
-            vLrji = 1;
-            for k = 1:lenVj
-                if (k == ii)
-                    continue;
-                end
-                vLrji = vLrji * tanh(vLq(jj, setVj(k)) / 2);
-            end
-            vLrji = max(min(vLrji, 0.999999999999), -0.999999999999);
-            vLr(jj, setVj(ii)) = 2 * atanh(vLrji);
-        end
-    end
+    numIter = numIter + 1;
     
-    for ii = 1:n
-        setCi = posChk(posChkIdx(ii):posChkIdx(ii+1)-1);
-        lenCi = length(setCi);
-        for jj = 1:lenCi
-            vLqij = x(ii);
-            for k = 1:lenCi
-                if (k == jj)
-                    continue;
-                end
-                vLqij = vLqij + vLr(setCi(k), ii);
-            end
-            vLq(setCi(jj), ii) = vLqij;
+    % Calculate check nodes values from variable node values
+    vLq = tanh(vLq/2);
+    vLq = (2*(vLq >= 0)-1) .* max(abs(vLq), 1e-9);
+    prodLq = ones(r, 1);
+    for nn = 1:nz
+        prodLq(rows(nn)) = prodLq(rows(nn)) * vLq(nn);
+    end
+    vLr = 2 * atanh(max(min(prodLq(rows)./vLq, 0.999999999999), -0.999999999999));
+    
+    % Calculate variable nodes values from check node values
+    vLQ = x;
+    for nn = 1:nz
+        vLQ(cols(nn)) = vLQ(cols(nn)) + vLr(nn);
+    end
+    vLq = vLQ(cols) - vLr;
+    
+    % Parity checks
+    if (earlyExit)
+        vLQHard = double(vLQ < 0);
+        vParity = zeros(r, 1);
+        for nn = 1:nz
+            vParity(rows(nn)) = vParity(rows(nn)) + vLQHard(cols(nn));
+        end
+        vParity = mod(vParity, 2);
+        if (~any(vParity))
+            break;
         end
     end
 end
 
-y = x;
-for ii = 1:n
-    for jj = posChkIdx(ii):posChkIdx(ii+1)-1
-        y(ii) = y(ii) + vLr(posChk(jj), ii);
-    end
-end
-y = double(y(1:n-r) < 0);
+% Output hard decision of information bits
+y = double(vLQ(1:n-r) < 0);
 
 
 end

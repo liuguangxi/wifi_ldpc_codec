@@ -28,7 +28,7 @@ switch cwlen
             case 1;    pcmBase = Hn648cr23;
             case 2;    pcmBase = Hn648cr34;
             case 3;    pcmBase = Hn648cr56;
-            otherwise; error('ERROR: invalid value of rate');
+            otherwise; error('Error: invalid value of rate');
         end
     case 1
         switch rate
@@ -36,7 +36,7 @@ switch cwlen
             case 1;    pcmBase = Hn1296cr23;
             case 2;    pcmBase = Hn1296cr34;
             case 3;    pcmBase = Hn1296cr56;
-            otherwise; error('ERROR: invalid value of rate');
+            otherwise; error('Error: invalid value of rate');
         end
     case 2
         switch rate
@@ -44,10 +44,10 @@ switch cwlen
             case 1;    pcmBase = Hn1944cr23;
             case 2;    pcmBase = Hn1944cr34;
             case 3;    pcmBase = Hn1944cr56;
-            otherwise; error('ERROR: invalid value of rate');
+            otherwise; error('Error: invalid value of rate');
         end
     otherwise
-        error('ERROR: invalid value of cwlen');
+        error('Error: invalid value of cwlen');
 end
 
 
@@ -66,38 +66,11 @@ for ii = 1:rb
 end
 
 [rows, cols] = find(H);
-szH = length(rows);
-rcSort = sortrows([rows cols]);
-rows2 = rcSort(:, 1);
-cols2 = rcSort(:, 2);
 
-posChk = rows;
-posChkIdx = zeros(n+1, 1);
-posChkIdx(1) = 1;
-posChkIdx(n+1) = szH + 1;
-idx = 2;
-for k = 1:szH
-    if (cols(k) == idx)
-        posChkIdx(idx) = k;
-        idx = idx + 1;
-    end
-end
-
-posVar = cols2;
-posVarIdx = zeros(r+1, 1);
-posVarIdx(1) = 1;
-posVarIdx(r+1) = szH + 1;
-idx = 2;
-for k = 1:szH
-    if (rows2(k) == idx)
-        posVarIdx(idx) = k;
-        idx = idx + 1;
-    end
-end
-
-pcm = struct('r', r, 'n', n, ...
-    'posChk', posChk, 'posChkIdx', posChkIdx, ...
-    'posVar', posVar, 'posVarIdx', posVarIdx);
+pcm.r = r;
+pcm.n = n;
+pcm.rows = rows;
+pcm.cols = cols;
 
 end
 

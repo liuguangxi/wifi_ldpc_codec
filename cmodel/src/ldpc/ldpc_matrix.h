@@ -42,10 +42,8 @@ struct PcmBase {
 struct PcmGraph {
     int r;    // number of rows
     int n;    // number of columns
-    std::vector<int> posChk;    // position of check nodes
-    std::vector<int> posChkIdx;    // position of check nodes index
-    std::vector<int> posVar;    // position of variable nodes
-    std::vector<int> posVarIdx;    // position of variable nodes index
+    std::vector<int> rows;    // row position of non-zero element of parity check matrix
+    std::vector<int> cols;    // column position of non-zero element of parity check matrix
 };
 
 

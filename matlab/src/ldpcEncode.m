@@ -20,7 +20,7 @@ function cw = ldpcEncode(msg, pcm)
 
 % Check input arguments
 if (~isnumeric(msg))
-    error('ERROR: msg must be a numeric vector');
+    error('Error: msg must be a numeric vector');
 end
 
 
@@ -31,7 +31,7 @@ tab = pcm.base;
 kb = nb - rb;
 msgDim = size(msg);
 if (length(msgDim) ~= 2 || msgDim(1) ~= kb * z || msgDim(2) ~= 1)
-    error('ERROR: invalid size of msg');
+    error('Error: invalid size of msg');
 end
 
 

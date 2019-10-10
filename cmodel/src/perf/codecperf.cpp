@@ -40,8 +40,9 @@ void perf()
     unsigned Seed = 0;
     int CwLen = 0;    // 0, 1, 2
     int Rate = 0;    // 0, 1, 2, 3
-    double VecSnr[] = {1.0, 1.2, 1.4, 1.6, 1.8, 2.0};
+    double VecSnr[] = {1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0};
     int MaxIter = 30;
+    bool EarlyExit = true;
 
 
     // Derived variables
@@ -50,6 +51,8 @@ void perf()
     int dataLen = (CwLen + 1) * 648;
     int msgLen = static_cast<int>(dataLen * VecRate[Rate] + 0.5);
     int lenVecSnr = sizeof(VecSnr) / sizeof(double);
+    const PcmBase& pb = Hldpc[cm];
+    PcmGraph pg = getPcmGraph(cm);
 
 
     // Main simulation loop
@@ -62,8 +65,10 @@ void perf()
     vector<double> rxSig(dataLen);
     vector<double> demodData(dataLen);
     vector<int> rxBits;
+    int numIter;
 
-    printf("CwLen = %d\nRate = %d\nMaxIter = %d\n\n", CwLen, Rate, MaxIter);
+    printf("CwLen = %d\nRate = %d\nMaxIter = %d\nEarlyExit = %d\n\n",
+           CwLen, Rate, MaxIter, EarlyExit);
 
     for (int iSnr = 0; iSnr < lenVecSnr; iSnr++) {
         double snr = VecSnr[iSnr];
@@ -71,6 +76,8 @@ void perf()
         double ampNoise = sqrt(varNoise);
         int numTotalBits = 0;
         int numErrorBits = 0;
+        int numTotalBlks = 0;
+        double numTotalIters = 0;
 
         while (numErrorBits <= 10000 && numTotalBits <= 1000000) {
             for (int i = 0; i < msgLen; i++)
@@ -87,17 +94,21 @@ void perf()
             for (int i = 0; i < dataLen; i++)
                 demodData[i] = -2 * rxSig[i] / varNoise;
 
-            rxBits = ldpcDecodeSP(demodData, static_cast<CodeMode>(cm), MaxIter);
+            rxBits = ldpcDecodeSP(demodData, static_cast<CodeMode>(cm), MaxIter,
+                                  EarlyExit, numIter);
+            numTotalIters += numIter;
 
             numTotalBits += msgLen;
             for (int i = 0; i < msgLen; i++) {
                 if (txBits[i] != rxBits[i])
                     numErrorBits++;
             }
+            numTotalBlks++;
         }
 
         double ber = (double)numErrorBits / numTotalBits;
-        printf("SNR (dB) = %.2f        BER = %.10f  (%d / %d)\n",
-               snr, ber, numErrorBits, numTotalBits);
+        double avgIters = numTotalIters / numTotalBlks;
+        printf("SNR (dB) = %.2f        BER = %.10f  (%d / %d)        AvgIters = %.2f\n",
+               snr, ber, numErrorBits, numTotalBits, avgIters);
     }
 }

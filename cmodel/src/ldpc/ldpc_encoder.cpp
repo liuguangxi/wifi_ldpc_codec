@@ -41,12 +41,12 @@ static void rotateVector(vector<int>& vec, int sh)
 //
 // Input:
 //     dataIn: message data bits, value is 0 or 1
-//     h: parity check matrix
+//     h: base parity check matrix
 //
 // Return:
 //     codeword data bits, value is 0 or 1
 //----------------------------------------------------------
-static vector<int> ldpcEncodeCore(const vector<int>& dataIn, const PcmBase& h)
+vector<int> ldpcEncodeCore(const vector<int>& dataIn, const PcmBase& h)
 {
     int kb = h.nb - h.rb;
     if (dataIn.size() != static_cast<vector<int>::size_type>(kb * h.z)) {
