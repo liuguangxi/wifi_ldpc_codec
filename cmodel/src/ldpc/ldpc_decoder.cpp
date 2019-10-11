@@ -99,6 +99,7 @@ vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
     int nz = pg.rows.size();
     vector<double> vLq(nz);
     vector<double> vLr(nz);
+    vector<double> prodLq(pg.r);
     vector<double> vLQ(pg.n);
     vector<int> vLQHard(pg.n);
     vector<int> vParity(pg.r);
@@ -118,7 +119,7 @@ vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
             lq = (lq >= 0) ? max(1e-9, lq) : min(-1e-9, lq);
             vLq[i] = lq;
         }
-        vector<double> prodLq(pg.r, 1.0);
+        fill(prodLq.begin(), prodLq.end(), 1.0);
         for (int i = 0; i < nz; i++)
             prodLq[pg.rows[i]] *= vLq[i];
         for (int i = 0; i < nz; i++) {
@@ -140,11 +141,13 @@ vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
             for (int i = 0; i < pg.n; i++)
                 vLQHard[i] = (vLQ[i] < 0) ? 1 : 0;
             fill(vParity.begin(), vParity.end(), 0);
-            for (int i = 0; i < nz; i++)
-                vParity[pg.rows[i]] += vLQHard[pg.cols[i]];
+            for (int i = 0; i < nz; i++) {
+                if (vLQHard[pg.cols[i]] == 1)
+                    vParity[pg.rows[i]] = 1 - vParity[pg.rows[i]];
+            }
             bool isAllZeros = true;
             for (int i = 0; i < pg.r; i++) {
-                if (vParity[i] % 2 == 1) {
+                if (vParity[i] == 1) {
                     isAllZeros = false;
                     break;
                 }

@@ -72,9 +72,11 @@ for iter = 1:maxIter
         vLQHard = double(vLQ < 0);
         vParity = zeros(r, 1);
         for nn = 1:nz
-            vParity(rows(nn)) = vParity(rows(nn)) + vLQHard(cols(nn));
+            if (vLQHard(cols(nn)))
+                vParity(rows(nn)) = 1 - vParity(rows(nn));
+            end
         end
-        vParity = mod(vParity, 2);
+        
         if (~any(vParity))
             break;
         end

@@ -108,7 +108,7 @@ void perf()
 
         double ber = (double)numErrorBits / numTotalBits;
         double avgIters = numTotalIters / numTotalBlks;
-        printf("SNR (dB) = %.2f        BER = %.10f  (%d / %d)        AvgIters = %.2f\n",
+        printf("SNR (dB) = %.2f      BER = %.10f  (%d / %d)      AvgIters = %.2f\n",
                snr, ber, numErrorBits, numTotalBits, avgIters);
     }
 }
