@@ -28,8 +28,11 @@ end
 hError = comm.ErrorRate;
 
 
-fprintf('CwLen = %d\nRate = %d\nMaxIter = %d\nEarlyExit = %d\n\n', ...
-    CwLen, Rate, MaxIter, EarlyExit);
+fprintf('CwLen = %d\n', CwLen);
+fprintf('Rate = %d\n', Rate);
+fprintf('MaxIter = %d\n', MaxIter);
+fprintf('EarlyExit = %d\n', EarlyExit);
+fprintf('\n');
 
 for snr = Snr
     varNoise = 10^(-snr/10);
@@ -37,16 +40,15 @@ for snr = Snr
     numTotalBlks = 0;
     numTotalIters = 0;
     
-    while (errorStats(2) <= 10000 && errorStats(3) <= 1000000)
+    while (errorStats(2) <= 1e4 && errorStats(3) <= 1e6)
         txBits = randi([0 1], msgLen, 1);
         encData = ldpcEncode(txBits, pcmB);
         modSig = 2 * encData - 1;
         rxSig = awgn(modSig, snr);
         demodSig = -2 * rxSig / varNoise;
         
+        %[rxBits, numIter] = step(hDec, demodSig);    rxBits = double(rxBits);
         [rxBits, numIter] = ldpcDecodeSP(demodSig, pcmG, MaxIter, EarlyExit);
-        %[rxBits, numIter] = step(hDec, demodSig);
-        %rxBits = double(rxBits);
         
         numTotalBlks = numTotalBlks + 1;
         numTotalIters = numTotalIters + numIter;
