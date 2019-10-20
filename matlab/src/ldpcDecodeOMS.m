@@ -1,4 +1,4 @@
-% ldpcDecode    LDPC decode LLR data with offset minimum-sum algorithm.
+% ldpcDecodeOMS    LDPC decode LLR data with offset minimum-sum algorithm.
 %
 % Calling syntax:
 %     [y, numIter] = ldpcDecodeOMS(x, pcm, maxIter, os, earlyExit)

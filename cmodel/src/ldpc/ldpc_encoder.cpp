@@ -10,7 +10,7 @@
 //==============================================================================
 
 
-#include "ldpc/ldpc_encoder.h"
+#include "ldpc_encoder.h"
 #include <cstdlib>
 #include <iostream>
 #include <algorithm>

@@ -14,7 +14,7 @@
 #define LDPC_ENCODER_H
 
 
-#include "ldpc/ldpc_matrix.h"
+#include "ldpc_matrix.h"
 #include <vector>
 
 

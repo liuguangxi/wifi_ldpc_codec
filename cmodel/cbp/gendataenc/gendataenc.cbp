@@ -32,7 +32,7 @@
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
-			<Add directory="../../src" />
+			<Add directory="../../src/ldpc" />
 		</Compiler>
 		<Unit filename="../../src/ldpc/ldpc_decoder.cpp" />
 		<Unit filename="../../src/ldpc/ldpc_decoder.h" />

@@ -10,8 +10,8 @@
 //==============================================================================
 
 
-#include "ldpc/ldpc_encoder.h"
-#include "ldpc/ldpc_decoder.h"
+#include "ldpc_encoder.h"
+#include "ldpc_decoder.h"
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>

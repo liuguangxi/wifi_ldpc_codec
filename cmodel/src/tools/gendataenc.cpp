@@ -10,7 +10,7 @@
 //==============================================================================
 
 
-#include "ldpc/ldpc_encoder.h"
+#include "ldpc_encoder.h"
 #define OPTPARSE_IMPLEMENTATION
 #define OPTPARSE_API static
 #include "optparse.h"

@@ -1,4 +1,4 @@
-% ldpcDecode    LDPC decode LLR data with sum-product algorithm.
+% ldpcDecodeSP    LDPC decode LLR data with sum-product algorithm.
 %
 % Calling syntax:
 %     [y, numIter] = ldpcDecodeSP(x, pcm, maxIter, earlyExit)

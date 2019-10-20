@@ -1,4 +1,4 @@
-% ldpcDecode    LDPC decode LLR data with normalized minimum-sum algorithm.
+% ldpcDecodeNMS    LDPC decode LLR data with normalized minimum-sum algorithm.
 %
 % Calling syntax:
 %     [y, numIter] = ldpcDecodeNMS(x, pcm, maxIter, sc, earlyExit)
