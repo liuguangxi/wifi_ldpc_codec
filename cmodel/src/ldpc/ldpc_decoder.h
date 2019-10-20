@@ -35,7 +35,7 @@ PcmGraph getPcmGraph(int idxHldpc);
 //
 // Input:
 //     dataIn: demapped LLR data
-//     pg: parity check matrix graph
+//     pcm: parity check matrix graph
 //     maxIter: maximum number of decoding iterations
 //     earlyExit: whether decoding terminates after all parity checks are satisfied
 //
@@ -46,7 +46,7 @@ PcmGraph getPcmGraph(int idxHldpc);
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeSPCore(const std::vector<double>& dataIn,
-                                  const PcmGraph& pg, int maxIter, bool earlyExit,
+                                  const PcmGraph& pcm, int maxIter, bool earlyExit,
                                   int &numIter);
 
 
@@ -75,7 +75,7 @@ std::vector<int> ldpcDecodeSP(const std::vector<double>& dataIn,
 //
 // Input:
 //     dataIn: demapped LLR data
-//     pg: parity check matrix graph
+//     pcm: parity check matrix graph
 //     maxIter: maximum number of decoding iterations
 //     earlyExit: whether decoding terminates after all parity checks are satisfied
 //
@@ -86,7 +86,7 @@ std::vector<int> ldpcDecodeSP(const std::vector<double>& dataIn,
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeMSCore(const std::vector<double>& dataIn,
-                                  const PcmGraph& pg, int maxIter, bool earlyExit,
+                                  const PcmGraph& pcm, int maxIter, bool earlyExit,
                                   int &numIter);
 
 
@@ -115,7 +115,7 @@ std::vector<int> ldpcDecodeMS(const std::vector<double>& dataIn,
 //
 // Input:
 //     dataIn: demapped LLR data
-//     pg: parity check matrix graph
+//     pcm: parity check matrix graph
 //     maxIter: maximum number of decoding iterations
 //     sc: scaling factor
 //     earlyExit: whether decoding terminates after all parity checks are satisfied
@@ -127,7 +127,7 @@ std::vector<int> ldpcDecodeMS(const std::vector<double>& dataIn,
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeNMSCore(const std::vector<double>& dataIn,
-                                   const PcmGraph& pg, int maxIter,
+                                   const PcmGraph& pcm, int maxIter,
                                    double sc, bool earlyExit,
                                    int &numIter);
 
@@ -159,7 +159,7 @@ std::vector<int> ldpcDecodeNMS(const std::vector<double>& dataIn,
 //
 // Input:
 //     dataIn: demapped LLR data
-//     pg: parity check matrix graph
+//     pcm: parity check matrix graph
 //     maxIter: maximum number of decoding iterations
 //     os: offset
 //     earlyExit: whether decoding terminates after all parity checks are satisfied
@@ -171,7 +171,7 @@ std::vector<int> ldpcDecodeNMS(const std::vector<double>& dataIn,
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeOMSCore(const std::vector<double>& dataIn,
-                                   const PcmGraph& pg, int maxIter,
+                                   const PcmGraph& pcm, int maxIter,
                                    double os, bool earlyExit,
                                    int &numIter);
 
@@ -196,6 +196,94 @@ std::vector<int> ldpcDecodeOMS(const std::vector<double>& dataIn,
                                CodeMode mode, int maxIter,
                                double os, bool earlyExit,
                                int &numIter);
+
+
+//----------------------------------------------------------
+// LDPC decoder core with layered normalized minimum-sum algorithm
+//
+// Input:
+//     dataIn: demapped LLR data
+//     pcm: parity check matrix graph
+//     maxIter: maximum number of decoding iterations
+//     sc: scaling factor
+//     earlyExit: whether decoding terminates after all parity checks are satisfied
+//
+// Output:
+//     numIter: actual number of iterations performed
+//
+// Return:
+//     decoded message data bits, value is 0 or 1
+//----------------------------------------------------------
+std::vector<int> ldpcDecodeLNMSCore(const std::vector<double>& dataIn,
+                                    const PcmBase& pcm, int maxIter,
+                                    double sc, bool earlyExit,
+                                    int &numIter);
+
+
+//----------------------------------------------------------
+// LDPC decoder with layered normalized minimum-sum algorithm
+//
+// Input:
+//     dataIn: demapped LLR data
+//     mode: mode of codeword length and code rate
+//     maxIter: maximum number of decoding iterations
+//     sc: scaling factor
+//     earlyExit: whether decoding terminates after all parity checks are satisfied
+//
+// Output:
+//     numIter: actual number of iterations performed
+//
+// Return:
+//     decoded message data bits, value is 0 or 1
+//----------------------------------------------------------
+std::vector<int> ldpcDecodeLNMS(const std::vector<double>& dataIn,
+                                CodeMode mode, int maxIter,
+                                double sc, bool earlyExit,
+                                int &numIter);
+
+
+//----------------------------------------------------------
+// LDPC decoder core with layered offset minimum-sum algorithm
+//
+// Input:
+//     dataIn: demapped LLR data
+//     pcm: parity check matrix graph
+//     maxIter: maximum number of decoding iterations
+//     os: offset
+//     earlyExit: whether decoding terminates after all parity checks are satisfied
+//
+// Output:
+//     numIter: actual number of iterations performed
+//
+// Return:
+//     decoded message data bits, value is 0 or 1
+//----------------------------------------------------------
+std::vector<int> ldpcDecodeLOMSCore(const std::vector<double>& dataIn,
+                                    const PcmBase& pcm, int maxIter,
+                                    double os, bool earlyExit,
+                                    int &numIter);
+
+
+//----------------------------------------------------------
+// LDPC decoder with layered offset minimum-sum algorithm
+//
+// Input:
+//     dataIn: demapped LLR data
+//     mode: mode of codeword length and code rate
+//     maxIter: maximum number of decoding iterations
+//     os: offset
+//     earlyExit: whether decoding terminates after all parity checks are satisfied
+//
+// Output:
+//     numIter: actual number of iterations performed
+//
+// Return:
+//     decoded message data bits, value is 0 or 1
+//----------------------------------------------------------
+std::vector<int> ldpcDecodeLOMS(const std::vector<double>& dataIn,
+                                CodeMode mode, int maxIter,
+                                double os, bool earlyExit,
+                                int &numIter);
 
 
 #endif // LDPC_DECODER_H

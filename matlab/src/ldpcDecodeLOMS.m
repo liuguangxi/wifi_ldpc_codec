@@ -93,7 +93,6 @@ for iter = 1:maxIter
                 for kk = 1:z
                     idx = (jj-1)*z + mod(kk-1+sh, z) + 1;
                     lq = vLQ(idx) - vLr(ii, idx);
-                    lqAbs = abs(lq);
                     if (lq < 0)
                         lr = -prodLqSgn(kk);
                     else

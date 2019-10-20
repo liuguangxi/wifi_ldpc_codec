@@ -23,12 +23,12 @@
 //
 // Input:
 //     dataIn: message data bits, value is 0 or 1
-//     h: base parity check matrix
+//     pcm: base parity check matrix
 //
 // Return:
 //     codeword data bits, value is 0 or 1
 //----------------------------------------------------------
-std::vector<int> ldpcEncodeCore(const std::vector<int>& dataIn, const PcmBase& h);
+std::vector<int> ldpcEncodeCore(const std::vector<int>& dataIn, const PcmBase& pcm);
 
 
 //----------------------------------------------------------

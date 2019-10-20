@@ -46,43 +46,43 @@ static void rotateVector(vector<int>& vec, int sh)
 // Return:
 //     codeword data bits, value is 0 or 1
 //----------------------------------------------------------
-vector<int> ldpcEncodeCore(const vector<int>& dataIn, const PcmBase& h)
+vector<int> ldpcEncodeCore(const vector<int>& dataIn, const PcmBase& pcm)
 {
-    int kb = h.nb - h.rb;
-    if (dataIn.size() != static_cast<vector<int>::size_type>(kb * h.z)) {
+    int kb = pcm.nb - pcm.rb;
+    if (dataIn.size() != static_cast<vector<int>::size_type>(kb * pcm.z)) {
         cerr << "Error: Invalid input data size" << dataIn.size()
-             << ", should be " << kb * h.z << endl;
+             << ", should be " << kb * pcm.z << endl;
         exit(EXIT_FAILURE);
     }
 
-    vector<int> x(h.rb * h.z);
-    vector<int> p(h.rb * h.z);
+    vector<int> x(pcm.rb * pcm.z);
+    vector<int> p(pcm.rb * pcm.z);
     vector<int> t;
 
-    for (int i = 0; i < h.rb; i++) {
+    for (int i = 0; i < pcm.rb; i++) {
         for (int j = 0; j < kb; j++) {
-            t.assign(dataIn.begin() + j * h.z, dataIn.begin() + (j + 1) * h.z);
-            rotateVector(t, h.base[i * h.nb + j]);
-            for (int ii = 0; ii < h.z; ii++)
-                x[i * h.z + ii] = (x[i * h.z + ii] + t[ii]) % 2;
+            t.assign(dataIn.begin() + j * pcm.z, dataIn.begin() + (j + 1) * pcm.z);
+            rotateVector(t, pcm.base[i * pcm.nb + j]);
+            for (int ii = 0; ii < pcm.z; ii++)
+                x[i * pcm.z + ii] = (x[i * pcm.z + ii] + t[ii]) % 2;
         }
     }
 
-    for (int i = 0; i < h.rb; i++) {
-        for (int ii = 0; ii < h.z; ii++)
-            p[ii] = (p[ii] + x[i * h.z + ii]) % 2;
+    for (int i = 0; i < pcm.rb; i++) {
+        for (int ii = 0; ii < pcm.z; ii++)
+            p[ii] = (p[ii] + x[i * pcm.z + ii]) % 2;
     }
 
-    t.assign(p.begin(), p.begin() + h.z);
+    t.assign(p.begin(), p.begin() + pcm.z);
     rotateVector(t, 1);
-    for (int i = 1; i < h.rb; i++) {
-        for (int ii = 0; ii < h.z; ii++) {
+    for (int i = 1; i < pcm.rb; i++) {
+        for (int ii = 0; ii < pcm.z; ii++) {
             if (i == 1)
-                p[i * h.z + ii] = (x[(i - 1) * h.z + ii] + t[ii]) % 2;
-            else if (i == h.rb / 2 + 1)
-                p[i * h.z + ii] = (x[(i - 1) * h.z + ii] + p[ii] + p[(i - 1) * h.z + ii]) % 2;
+                p[i * pcm.z + ii] = (x[(i - 1) * pcm.z + ii] + t[ii]) % 2;
+            else if (i == pcm.rb / 2 + 1)
+                p[i * pcm.z + ii] = (x[(i - 1) * pcm.z + ii] + p[ii] + p[(i - 1) * pcm.z + ii]) % 2;
             else
-                p[i * h.z + ii] = (x[(i - 1) * h.z + ii] + p[(i - 1) * h.z + ii]) % 2;
+                p[i * pcm.z + ii] = (x[(i - 1) * pcm.z + ii] + p[(i - 1) * pcm.z + ii]) % 2;
         }
     }
 
