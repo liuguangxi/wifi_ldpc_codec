@@ -24,6 +24,7 @@ module ldpcenc_cu (
     output rdy_in,                  // ready to receive input data
     output reg vld_out,             // output data valid
     output reg sop_out,             // output start of packet
+    output reg eop_out,             // output end of packet
     output [1:0] state,             // current state
     output reg [3:0] mode,          // input encoder mode, [1:0]:rate, [3:2]:codeword length
     output reg [4:0] cnt_sym,       // counter of symbol
@@ -186,6 +187,15 @@ always @ (posedge clk or negedge rst_n) begin
         sop_out <= sop;
     else
         sop_out <= 1'b0;
+end
+
+always @ (posedge clk or negedge rst_n) begin
+    if (!rst_n)
+        eop_out <= 1'b0;
+    else if (cs == ST_PRT && cnt_sym == prt_sym_len && cnt_vld == cnt_vld_max)
+        eop_out <= 1'b1;
+    else
+        eop_out <= 1'b0;
 end
 
 always @ (posedge clk or negedge rst_n) begin

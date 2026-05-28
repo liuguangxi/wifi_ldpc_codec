@@ -31,6 +31,7 @@ logic [26:0] data_in;       // input data
 logic rdy_in;               // ready to receive input data
 logic vld_out;              // output data valid
 logic sop_out;              // output start of packet
+logic eop_out;              // output end of packet
 logic [26:0] data_out;      // output data
 
 
@@ -51,7 +52,7 @@ end
 
 
 // Testcases
-task tc_c648_r12();
+task automatic tc_c648_r12();
 
 for (int i = 0; i < 12; i++) begin
     @(posedge clk)    #Dly;
@@ -77,7 +78,7 @@ data_in = 0;
 endtask
 
 
-task tc_c648_r23();
+task automatic tc_c648_r23();
 
 for (int i = 0; i < 16; i++) begin
     @(posedge clk)    #Dly;
@@ -103,7 +104,7 @@ data_in = 0;
 endtask
 
 
-task tc_c648_r34();
+task automatic tc_c648_r34();
 
 for (int i = 0; i < 18; i++) begin
     @(posedge clk)    #Dly;
@@ -129,7 +130,7 @@ data_in = 0;
 endtask
 
 
-task tc_c648_r56();
+task automatic tc_c648_r56();
 
 for (int i = 0; i < 20; i++) begin
     @(posedge clk)    #Dly;
@@ -155,7 +156,7 @@ data_in = 0;
 endtask
 
 
-task tc_c1296_r12();
+task automatic tc_c1296_r12();
 
 for (int i = 0; i < 24; i++) begin
     @(posedge clk)    #Dly;
@@ -181,7 +182,7 @@ data_in = 0;
 endtask
 
 
-task tc_c1296_r23();
+task automatic tc_c1296_r23();
 
 for (int i = 0; i < 32; i++) begin
     @(posedge clk)    #Dly;
@@ -207,7 +208,7 @@ data_in = 0;
 endtask
 
 
-task tc_c1296_r34();
+task automatic tc_c1296_r34();
 
 for (int i = 0; i < 36; i++) begin
     @(posedge clk)    #Dly;
@@ -233,7 +234,7 @@ data_in = 0;
 endtask
 
 
-task tc_c1296_r56();
+task automatic tc_c1296_r56();
 
 for (int i = 0; i < 40; i++) begin
     @(posedge clk)    #Dly;
@@ -259,7 +260,7 @@ data_in = 0;
 endtask
 
 
-task tc_c1944_r12();
+task automatic tc_c1944_r12();
 
 for (int i = 0; i < 36; i++) begin
     @(posedge clk)    #Dly;
@@ -285,7 +286,7 @@ data_in = 0;
 endtask
 
 
-task tc_c1944_r23();
+task automatic tc_c1944_r23();
 
 for (int i = 0; i < 48; i++) begin
     @(posedge clk)    #Dly;
@@ -311,7 +312,7 @@ data_in = 0;
 endtask
 
 
-task tc_c1944_r34();
+task automatic tc_c1944_r34();
 
 for (int i = 0; i < 54; i++) begin
     @(posedge clk)    #Dly;
@@ -337,7 +338,7 @@ data_in = 0;
 endtask
 
 
-task tc_c1944_r56();
+task automatic tc_c1944_r56();
 
 for (int i = 0; i < 60; i++) begin
     @(posedge clk)    #Dly;
@@ -393,7 +394,7 @@ initial begin
     #(ClkPeriod*50)
     $fclose(fpIn);
     $fclose(fpOut);
-    $stop;
+    $finish;
 end
 
 

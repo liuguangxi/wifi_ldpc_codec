@@ -24,6 +24,7 @@ module ldpcenc (
     output rdy_in,              // ready to receive input data
     output vld_out,             // output data valid
     output sop_out,             // output start of packet
+    output eop_out,             // output end of packet
     output [26:0] data_out      // output data
 );
 
@@ -52,6 +53,7 @@ ldpcenc_cu u_ldpcenc_cu (
     .rdy_in         (rdy_in),
     .vld_out        (vld_out),
     .sop_out        (sop_out),
+    .eop_out        (eop_out),
     .state          (state),
     .mode           (mode),
     .cnt_sym        (cnt_sym),
