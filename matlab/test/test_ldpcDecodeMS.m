@@ -8,7 +8,7 @@ addpath ../src
 
 
 rng(0);
-CwLen = 2;    % 0, 1, 2
+CwLen = 2;    % 0, 1, 2, 3
 Rate = 0;    % 0, 1, 2, 3
 Snr = 0.75:0.25:2.25;
 MaxIter = 30;
@@ -18,8 +18,9 @@ Offset = 0.5;    % >= 0
 EarlyExit = true;
 
 
-vecRate = [1/2, 2/3, 3/4, 5/6];
-msgLen = round((CwLen+1)*648 * vecRate(Rate+1));
+VecLen = [648, 1296, 1944, 3888];
+VecRate = [1/2, 2/3, 3/4, 5/6];
+msgLen = round(VecLen(CwLen+1) * VecRate(Rate+1));
 pcmB = ldpcPcmBase(CwLen, Rate);
 pcmG = ldpcPcmGraph(CwLen, Rate);
 H = getH(CwLen, Rate);
@@ -55,21 +56,21 @@ for snr = Snr
     numTotalItersOMS = 0;
     numTotalItersLNMS = 0;
     numTotalItersLOMS = 0;
-    
+
     while (errorStatsSP(2) <= 1e4 && errorStatsSP(3) <= 1e6)
         txBits = randi([0 1], msgLen, 1);
         encData = ldpcEncode(txBits, pcmB);
         modSig = 2 * encData - 1;
         rxSig = awgn(modSig, snr);
         demodSig = -2 * rxSig / varNoise;
-        
+
         [rxBitsSP, numIterSP] = step(hDec, demodSig);    rxBitsSP = double(rxBitsSP);
         [rxBitsMS, numIterMS] = ldpcDecodeMS(demodSig, pcmG, MaxIter, EarlyExit);
         [rxBitsNMS, numIterNMS] = ldpcDecodeNMS(demodSig, pcmG, MaxIter, ScalingFactor, EarlyExit);
         [rxBitsOMS, numIterOMS] = ldpcDecodeOMS(demodSig, pcmG, MaxIter, Offset, EarlyExit);
         [rxBitsLNMS, numIterLNMS] = ldpcDecodeLNMS(demodSig, pcmB, MaxIterLayer, ScalingFactor, EarlyExit);
         [rxBitsLOMS, numIterLOMS] = ldpcDecodeLOMS(demodSig, pcmB, MaxIterLayer, Offset, EarlyExit);
-        
+
         numTotalBlks = numTotalBlks + 1;
         numTotalItersSP = numTotalItersSP + numIterSP;
         numTotalItersMS = numTotalItersMS + numIterMS;
@@ -84,14 +85,14 @@ for snr = Snr
         errorStatsLNMS  = step(hErrorLNMS, txBits, rxBitsLNMS);
         errorStatsLOMS  = step(hErrorLOMS, txBits, rxBitsLOMS);
     end
-    
+
     avgItersSP = numTotalItersSP / numTotalBlks;
     avgItersMS = numTotalItersMS / numTotalBlks;
     avgItersNMS = numTotalItersNMS / numTotalBlks;
     avgItersOMS = numTotalItersOMS / numTotalBlks;
     avgItersLNMS = numTotalItersLNMS / numTotalBlks;
     avgItersLOMS = numTotalItersLOMS / numTotalBlks;
-    
+
     fprintf('SNR (dB) = %.2f\n', snr);
     fprintf('    BER (SP) = %.10f  (%d / %d)      AvgIters (SP) = %.2f\n', ...
         errorStatsSP(1), errorStatsSP(2), errorStatsSP(3), avgItersSP);
@@ -106,7 +107,7 @@ for snr = Snr
     fprintf('    BER (LOMS) = %.10f  (%d / %d)      AvgIters (LOMS) = %.2f\n', ...
         errorStatsLOMS(1), errorStatsLOMS(2), errorStatsLOMS(3), avgItersLOMS);
     fprintf('\n');
-    
+
     reset(hErrorSP);
     reset(hErrorMS);
     reset(hErrorNMS);
