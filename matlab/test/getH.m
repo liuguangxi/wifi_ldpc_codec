@@ -10,7 +10,7 @@ switch cwlen
             case 1;    pcmBase = Hn648cr23;
             case 2;    pcmBase = Hn648cr34;
             case 3;    pcmBase = Hn648cr56;
-            otherwise; error('ERROR: invalid value of rate');
+            otherwise; error('Error: invalid value of rate');
         end
     case 1
         switch rate
@@ -18,7 +18,7 @@ switch cwlen
             case 1;    pcmBase = Hn1296cr23;
             case 2;    pcmBase = Hn1296cr34;
             case 3;    pcmBase = Hn1296cr56;
-            otherwise; error('ERROR: invalid value of rate');
+            otherwise; error('Error: invalid value of rate');
         end
     case 2
         switch rate
@@ -26,10 +26,18 @@ switch cwlen
             case 1;    pcmBase = Hn1944cr23;
             case 2;    pcmBase = Hn1944cr34;
             case 3;    pcmBase = Hn1944cr56;
-            otherwise; error('ERROR: invalid value of rate');
+            otherwise; error('Error: invalid value of rate');
+        end
+    case 3
+        switch rate
+            case 0;    pcmBase = Hn3888cr12;
+            case 1;    pcmBase = Hn3888cr23;
+            case 2;    pcmBase = Hn3888cr34;
+            case 3;    pcmBase = Hn3888cr56;
+            otherwise; error('Error: invalid value of rate');
         end
     otherwise
-        error('ERROR: invalid value of cwlen');
+        error('Error: invalid value of cwlen');
 end
 
 

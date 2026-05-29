@@ -4,13 +4,13 @@
 %     pcm = ldpcPcmGraph(cwlen, rate)
 %
 % Input:
-%     cwlen: length of codeword, 0:648, 1:1296, 2:1944
+%     cwlen: length of codeword, 0:648, 1:1296, 2:1944, 3:3888
 %     rate: code rate, 0:1/2, 1:2/3, 2:3/4, 3:5/6
 %
 % Output:
 %     pcm: struct for parity check matrix graph
 
-% Copyright (c) 2019 Guangxi Liu
+% Copyright (c) 2019-2026 Guangxi Liu
 %
 % This source code is licensed under the MIT license found in the
 % LICENSE file in the root directory of this source tree.
@@ -44,6 +44,14 @@ switch cwlen
             case 1;    pcmBase = Hn1944cr23;
             case 2;    pcmBase = Hn1944cr34;
             case 3;    pcmBase = Hn1944cr56;
+            otherwise; error('Error: invalid value of rate');
+        end
+    case 3
+        switch rate
+            case 0;    pcmBase = Hn3888cr12;
+            case 1;    pcmBase = Hn3888cr23;
+            case 2;    pcmBase = Hn3888cr34;
+            case 3;    pcmBase = Hn3888cr56;
             otherwise; error('Error: invalid value of rate');
         end
     otherwise

@@ -10,7 +10,7 @@
 % Output:
 %     cw: codeword data bits, column vector
 
-% Copyright (c) 2019 Guangxi Liu
+% Copyright (c) 2019-2026 Guangxi Liu
 %
 % This source code is licensed under the MIT license found in the
 % LICENSE file in the root directory of this source tree.
@@ -46,16 +46,32 @@ for ii = 1:rb
     end
 end
 
-for ii = 1:rb
-    p(1:z) = mod(p(1:z) + x((ii-1)*z+1 : ii*z), 2);
-end
-for ii = 1:rb-1
-    if (ii == 1)
-        p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + rotateVector(p(1:z), 1), 2);
-    elseif (ii == rb/2+1)
-        p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + p(1:z) + p((ii-1)*z+1 : ii*z), 2);
-    else
-        p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + p((ii-1)*z+1 : ii*z), 2);
+if (nb == 24)
+    for ii = 1:rb
+        p(1:z) = mod(p(1:z) + x((ii-1)*z+1 : ii*z), 2);
+    end
+    for ii = 1:rb-1
+        if (ii == 1)
+            p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + rotateVector(p(1:z), 1), 2);
+        elseif (ii == rb/2+1)
+            p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + p(1:z) + p((ii-1)*z+1 : ii*z), 2);
+        else
+            p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + p((ii-1)*z+1 : ii*z), 2);
+        end
+    end
+else    % nb == 48 (LDPC enhancements for P802.11bn)
+    for ii = 1:2:rb
+        p(1:z) = mod(p(1:z) + x((ii-1)*z+1 : ii*z), 2);
+        p(z+1:2*z) = mod(p(z+1:2*z) + x(ii*z+1 : (ii+1)*z), 2);
+    end
+    for ii = 2:rb-1
+        if (floor(ii/2) == 1)
+            p(ii*z+1 : (ii+1)*z) = mod(x((ii-2)*z+1 : (ii-1)*z) + rotateVector(p((ii-2)*z+1 : (ii-1)*z), 1), 2);
+        elseif (floor(ii/2) == rb/4+1)
+            p(ii*z+1 : (ii+1)*z) = mod(x((ii-2)*z+1 : (ii-1)*z) + p((ii-rb/2-2)*z+1 : (ii-rb/2-1)*z) + p((ii-2)*z+1 : (ii-1)*z), 2);
+        else
+            p(ii*z+1 : (ii+1)*z) = mod(x((ii-2)*z+1 : (ii-1)*z) + p((ii-2)*z+1 : (ii-1)*z), 2);
+        end
     end
 end
 
