@@ -20,7 +20,7 @@
 using namespace std;
 
 
-// internal functions
+// Internal functions
 static void perfSP();
 
 

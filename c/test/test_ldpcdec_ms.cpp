@@ -20,7 +20,7 @@
 using namespace std;
 
 
-// internal functions
+// Internal functions
 static void perfAlgo();
 
 
@@ -47,6 +47,7 @@ void perfAlgo()
     int MaxIterLayer = 15;    // >= 1
     bool EarlyExit = true;
 
+
     // Derived variables
     const int VecLen[] = {648, 1296, 1944, 3888};
     const double VecRate[] = {1/2., 2/3., 3/4., 5/6.};
@@ -56,6 +57,7 @@ void perfAlgo()
     int cm = CwLen * 4 + Rate;
     const PcmBase& pb = Hldpc[cm];
     PcmGraph pg = getPcmGraph(cm);
+
 
     // Main simulation loop
     mt19937 eng(Seed);

@@ -1,16 +1,16 @@
 //==============================================================================
-// ldpcenc.v
+// ldpcenc_core.v
 //
 // Top module of Wi-Fi LDPC encoder.
 //------------------------------------------------------------------------------
-// Copyright (c) 2019 Guangxi Liu
+// Copyright (c) 2019-2026 Guangxi Liu
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
 //==============================================================================
 
 
-module ldpcenc (
+module ldpcenc_core (
     // System signals
     input clk,                  // system clock
     input rst_n,                // system asynchronous reset, active low
