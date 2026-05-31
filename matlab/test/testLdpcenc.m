@@ -8,7 +8,9 @@
 
 clc;    clear;
 
+
 addpath ../src
+
 
 rng(0);
 
@@ -23,7 +25,7 @@ for cwlen = 0:3
         H = getH(cwlen, rate);
         hEnc = comm.LDPCEncoder(sparse(H));
 
-        for iter = 1:10
+        for iter = 1:MaxCnt
             txBits = randi([0 1], msgLen, 1);
             encData = ldpcEncode(txBits, pcmB);
             encDataRef = step(hEnc, txBits);

@@ -1,14 +1,16 @@
-% genRtlTbl    Generate RTL code snippet for ldpcenc_tbl.v
+% Generate RTL code snippet for ldpcenc_tbl.v
 
-% Copyright (c) 2019 Guangxi Liu
+% Copyright (c) 2019-2026 Guangxi Liu
 %
 % This source code is licensed under the MIT license found in the
 % LICENSE file in the root directory of this source tree.
 
+
 clc;    clear;
 
+
 % Load LDPC matrices
-addpath ../matlab/src/
+addpath ../src
 ldpcMatrix;
 
 
