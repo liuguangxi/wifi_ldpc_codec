@@ -1,4 +1,10 @@
-% Test ldpcEncode, ldpcDecode*MS and comm.LDPCDecoder
+% Performance test for LDPC decoder (SP/MS/NMS/OMS/LNMS/LOMS algorithm).
+
+% Copyright (c) 2019-2026 Guangxi Liu
+%
+% This source code is licensed under the MIT license found in the
+% LICENSE file in the root directory of this source tree.
+
 
 % clc;
 clear;

@@ -3,7 +3,7 @@
 //
 // LDPC matrix type definitions and values header.
 //------------------------------------------------------------------------------
-// Copyright (c) 2019 Guangxi Liu
+// Copyright (c) 2019-2026 Guangxi Liu
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
@@ -29,14 +29,20 @@ enum CodeMode {
     N1944CR12,      // n = 1944, cr = 1/2
     N1944CR23,      // n = 1944, cr = 2/3
     N1944CR34,      // n = 1944, cr = 3/4
-    N1944CR56       // n = 1944, cr = 5/6
+    N1944CR56,      // n = 1944, cr = 5/6
+
+    // LDPC2x (codeword block length 3888 bits)
+    N3888CR12,      // n = 3888, cr = 1/2
+    N3888CR23,      // n = 3888, cr = 2/3
+    N3888CR34,      // n = 3888, cr = 3/4
+    N3888CR56       // n = 3888, cr = 5/6
 };
 
 struct PcmBase {
     int z;    // expand factor
     int rb;    // number of rows
     int nb;    // number of columns
-    int base[288];    // base matrix
+    int base[1152];    // base matrix
 };
 
 struct PcmGraph {
@@ -47,7 +53,7 @@ struct PcmGraph {
 };
 
 
-extern const PcmBase Hldpc[12];
+extern const PcmBase Hldpc[16];
 
 
 #endif // LDPC_MATRIX_H

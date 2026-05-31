@@ -1,3 +1,11 @@
+% Get original parity check matrices of LDPC.
+
+% Copyright (c) 2019-2026 Guangxi Liu
+%
+% This source code is licensed under the MIT license found in the
+% LICENSE file in the root directory of this source tree.
+
+
 function H = getH(cwlen, rate)
 
 % Load LDPC matrices

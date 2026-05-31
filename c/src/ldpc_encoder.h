@@ -3,7 +3,7 @@
 //
 // LDPC encoder header.
 //------------------------------------------------------------------------------
-// Copyright (c) 2019 Guangxi Liu
+// Copyright (c) 2019-2026 Guangxi Liu
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
@@ -29,6 +29,19 @@
 //     codeword data bits, value is 0 or 1
 //----------------------------------------------------------
 std::vector<int> ldpcEncodeCore(const std::vector<int>& dataIn, const PcmBase& pcm);
+
+
+//----------------------------------------------------------
+// LDPC encoder core for codeword block length 3888 bits
+//
+// Input:
+//     dataIn: message data bits, value is 0 or 1
+//     pcm: base parity check matrix
+//
+// Return:
+//     codeword data bits, value is 0 or 1
+//----------------------------------------------------------
+std::vector<int> ldpc2xEncodeCore(const std::vector<int>& dataIn, const PcmBase& pcm);
 
 
 //----------------------------------------------------------

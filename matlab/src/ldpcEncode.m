@@ -59,7 +59,7 @@ if (nb == 24)
             p(ii*z+1 : (ii+1)*z) = mod(x((ii-1)*z+1 : ii*z) + p((ii-1)*z+1 : ii*z), 2);
         end
     end
-else    % nb == 48 (LDPC enhancements for P802.11bn)
+else    % nb == 48 (codeword block length 3888 bits)
     for ii = 1:2:rb
         p(1:z) = mod(p(1:z) + x((ii-1)*z+1 : ii*z), 2);
         p(z+1:2*z) = mod(p(z+1:2*z) + x(ii*z+1 : (ii+1)*z), 2);

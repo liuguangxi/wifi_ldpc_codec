@@ -161,7 +161,7 @@ Hn1944cr56.base = [...
     ];
 
 
-% LDPC enhancements for P802.11bn
+% LDPC2x (codeword block length 3888 bits)
 
 % codeword block length 3888 bits, code rate 1/2
 Hn3888cr12.z = 81;
