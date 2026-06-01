@@ -172,8 +172,8 @@ task automatic parse_tc;
         end
         else if (state_rd == 1) begin    // read CwLen
             code = $sscanf(str_line, "%d", cwlen);
-            if (cwlen < 0 || cwlen > 3) begin
-                $display("[ERROR]  Invalid cwlen value %0d, should be 0 ~ 3.", cwlen);
+            if (cwlen < 0 || cwlen > 2) begin
+                $display("[ERROR]  Invalid cwlen value %0d, should be 0 ~ 2.", cwlen);
                 $finish;
             end
             $display("[SIM]  CwLen = %0d", cwlen);
@@ -182,8 +182,8 @@ task automatic parse_tc;
         end
         else if (state_rd == 2) begin    // read Rate
             code = $sscanf(str_line, "%d", rate);
-            if (rate < 0 || rate > 4) begin
-                $display("[ERROR]  Invalid rate value %0d, should be 0 ~ 4.", rate);
+            if (rate < 0 || rate > 3) begin
+                $display("[ERROR]  Invalid rate value %0d, should be 0 ~ 3.", rate);
                 $finish;
             end
             $display("[SIM]  Rate = %0d", rate);
