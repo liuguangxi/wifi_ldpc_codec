@@ -36,9 +36,7 @@ wire [1:0] cnt_vld;
 wire [1:0] cnt_vld_max;
 wire clr_acc;
 wire vld;
-wire [26:0] data_r1;
-wire [26:0] data_r2;
-wire [26:0] data_r3;
+wire [26:0] data_r;
 
 
 // Instances
@@ -61,9 +59,7 @@ ldpcenc_cu u_ldpcenc_cu (
     .cnt_vld_max    (cnt_vld_max),
     .clr_acc        (clr_acc),
     .vld            (vld),
-    .data_r1        (data_r1),
-    .data_r2        (data_r2),
-    .data_r3        (data_r3)
+    .data_r         (data_r)
 );
 
 ldpcenc_dpu u_ldpcenc_dpu (
@@ -76,9 +72,7 @@ ldpcenc_dpu u_ldpcenc_dpu (
     .cnt_vld_max    (cnt_vld_max),
     .clr_acc        (clr_acc),
     .vld            (vld),
-    .data_r1        (data_r1),
-    .data_r2        (data_r2),
-    .data_r3        (data_r3),
+    .data_r         (data_r),
     .data_out       (data_out)
 );
 

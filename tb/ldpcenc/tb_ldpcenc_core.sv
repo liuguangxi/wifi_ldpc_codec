@@ -117,7 +117,7 @@ task automatic compare;
     num_test++;
     for (n = 0; n < nb; n++) begin
         if (cw_ref[n] != cw_rtl[n]) begin
-            $display("[SIM] Fail");
+            $display("[SIM]  Fail");
             num_fail++;
             return;
         end

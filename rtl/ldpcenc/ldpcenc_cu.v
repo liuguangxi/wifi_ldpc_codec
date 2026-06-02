@@ -3,7 +3,7 @@
 //
 // Controller unit of Wi-Fi LDPC encoder.
 //------------------------------------------------------------------------------
-// Copyright (c) 2019 Guangxi Liu
+// Copyright (c) 2019-2026 Guangxi Liu
 //
 // This source code is licensed under the MIT license found in the
 // LICENSE file in the root directory of this source tree.
@@ -32,9 +32,7 @@ module ldpcenc_cu (
     output reg [1:0] cnt_vld_max,   // maximum value of counter of valid
     output clr_acc,                 // clear accumulator
     output reg vld,                 // data valid
-    output reg [26:0] data_r1,      // registered data 1
-    output reg [26:0] data_r2,      // registered data 2
-    output reg [26:0] data_r3       // registered data 3
+    output reg [26:0] data_r        // registered data
 );
 
 // Local parameters
@@ -52,7 +50,7 @@ reg [4:0] prt_sym_len;
 
 
 // FSM
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         cs <= ST_IDLE;
     else if (srst)
@@ -61,7 +59,7 @@ always @ (posedge clk or negedge rst_n) begin
         cs <= ns;
 end
 
-always @ (*) begin
+always @(*) begin
     ns = cs;
     case (cs)
         ST_IDLE: if (sop_in)    ns = ST_MSG;
@@ -74,7 +72,7 @@ end
 
 assign state = cs;
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         sop <= 1'b0;
     else if (cs == ST_IDLE && sop_in == 1'b1)
@@ -83,23 +81,16 @@ always @ (posedge clk or negedge rst_n) begin
         sop <= 1'b0;
 end
 
-always @ (posedge clk or negedge rst_n) begin
-    if (!rst_n)
-        vld <= 1'b0;
-    else
-        vld <= vld_in;
-end
-
 assign clr_acc = sop;
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         mode <= 4'd0;
     else if (cs == ST_IDLE && sop_in == 1'b1)
         mode <= mode_in;
 end
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         msg_sym_len <= 5'd0;
     else if (cs == ST_IDLE && sop_in == 1'b1) begin
@@ -107,13 +98,12 @@ always @ (posedge clk or negedge rst_n) begin
             2'd0: msg_sym_len <= 5'd11;
             2'd1: msg_sym_len <= 5'd15;
             2'd2: msg_sym_len <= 5'd17;
-            2'd3: msg_sym_len <= 5'd19;
-            default: msg_sym_len <= 5'd11;
+            default: msg_sym_len <= 5'd19;
         endcase
     end
 end
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         prt_sym_len <= 5'd0;
     else if (cs == ST_IDLE && sop_in == 1'b1) begin
@@ -121,20 +111,19 @@ always @ (posedge clk or negedge rst_n) begin
             2'd0: prt_sym_len <= 5'd11;
             2'd1: prt_sym_len <= 5'd7;
             2'd2: prt_sym_len <= 5'd5;
-            2'd3: prt_sym_len <= 5'd3;
-            default: prt_sym_len <= 5'd11;
+            default: prt_sym_len <= 5'd3;
         endcase
     end
 end
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         cnt_vld_max <= 2'd0;
     else if (cs == ST_IDLE && sop_in == 1'b1)
         cnt_vld_max <= mode_in[3:2];
 end
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         cnt_sym <= 5'd0;
     else if (cs == ST_MSG) begin
@@ -149,7 +138,7 @@ always @ (posedge clk or negedge rst_n) begin
         cnt_sym <= 5'd0;
 end
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         cnt_vld <= 2'd0;
     else if (cs == ST_MSG) begin
@@ -163,24 +152,25 @@ always @ (posedge clk or negedge rst_n) begin
         cnt_vld <= 2'd0;
 end
 
-always @ (posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-        data_r1 <= 27'd0;
-        data_r2 <= 27'd0;
-        data_r3 <= 27'd0;
-    end
-    else if ((cs == ST_IDLE && sop_in == 1'b1) || (cs == ST_MSG && vld_in == 1'b1)) begin
-        data_r1 <= data_in;
-        data_r2 <= data_r1;
-        data_r3 <= data_r2;
-    end
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+        vld <= 1'b0;
+    else
+        vld <= vld_in;
+end
+
+always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+        data_r <= 27'd0;
+    else if (vld_in)
+        data_r <= data_in;
 end
 
 
-// Output data
+// Output control signals
 assign rdy_in = (cs == ST_IDLE || cs == ST_MSG) ? 1'b1 : 1'b0;
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         sop_out <= 1'b0;
     else if (cs == ST_MSG)
@@ -189,7 +179,7 @@ always @ (posedge clk or negedge rst_n) begin
         sop_out <= 1'b0;
 end
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         eop_out <= 1'b0;
     else if (cs == ST_PRT && cnt_sym == prt_sym_len && cnt_vld == cnt_vld_max)
@@ -198,7 +188,7 @@ always @ (posedge clk or negedge rst_n) begin
         eop_out <= 1'b0;
 end
 
-always @ (posedge clk or negedge rst_n) begin
+always @(posedge clk or negedge rst_n) begin
     if (!rst_n)
         vld_out <= 1'b0;
     else if (cs == ST_MSG)
