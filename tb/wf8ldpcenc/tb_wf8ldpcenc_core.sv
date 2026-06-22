@@ -59,7 +59,6 @@ wf8ldpcenc_core dut (.*);
 // System signals
 initial begin
     clk = 1'b0;
-    #(ClkPeriod/2);
     forever #(ClkPeriod/2)    clk = ~clk;
 end
 

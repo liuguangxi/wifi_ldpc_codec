@@ -30,7 +30,7 @@ if (~isnumeric(maxIter) || numel(maxIter) ~= 1 || maxIter <= 0)
     error('Error: maxIter must be a positive integer');
 end
 if (sc <= 0 || sc > 1)
-    error('Error: ss must be in (0, 1]');
+    error('Error: sc must be in (0, 1]');
 end
 
 

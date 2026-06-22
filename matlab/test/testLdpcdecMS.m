@@ -84,12 +84,12 @@ for snr = Snr
         numTotalItersOMS = numTotalItersOMS + numIterOMS;
         numTotalItersLNMS = numTotalItersLNMS + numIterLNMS;
         numTotalItersLOMS = numTotalItersLOMS + numIterLOMS;
-        errorStatsSP  = step(hErrorSP, txBits, rxBitsSP);
-        errorStatsMS  = step(hErrorMS, txBits, rxBitsMS);
-        errorStatsNMS  = step(hErrorNMS, txBits, rxBitsNMS);
-        errorStatsOMS  = step(hErrorOMS, txBits, rxBitsOMS);
-        errorStatsLNMS  = step(hErrorLNMS, txBits, rxBitsLNMS);
-        errorStatsLOMS  = step(hErrorLOMS, txBits, rxBitsLOMS);
+        errorStatsSP = step(hErrorSP, txBits, rxBitsSP);
+        errorStatsMS = step(hErrorMS, txBits, rxBitsMS);
+        errorStatsNMS = step(hErrorNMS, txBits, rxBitsNMS);
+        errorStatsOMS = step(hErrorOMS, txBits, rxBitsOMS);
+        errorStatsLNMS = step(hErrorLNMS, txBits, rxBitsLNMS);
+        errorStatsLOMS = step(hErrorLOMS, txBits, rxBitsLOMS);
     end
 
     avgItersSP = numTotalItersSP / numTotalBlks;

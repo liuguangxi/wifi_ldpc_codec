@@ -1,5 +1,5 @@
 //==============================================================================
-// codeperf.cpp
+// test_ldpcdec_ms.cpp
 //
 // Performance test for LDPC decoder (SP/MS/NMS/OMS/LNMS/LOMS algorithm).
 //------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ int main()
 }
 
 
-// LDPC encoder & decoder performance test for SP/MS/NMS/OMS
+// LDPC encoder & decoder performance test for SP/MS/NMS/OMS/LNMS/LOMS
 void perfAlgo()
 {
     // Simulation parameters
