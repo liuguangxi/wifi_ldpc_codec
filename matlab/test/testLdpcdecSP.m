@@ -16,9 +16,11 @@ addpath ../src
 rng(0);
 CwLen = 2;    % 0, 1, 2, 3
 Rate = 0;    % 0, 1, 2, 3
-Snr = 1.0:0.25:3.0;
 MaxIter = 30;
 EarlyExit = true;
+SnrStart = 1.0;
+SnrStep = 0.25;
+SnrLen = 9;
 
 
 VecLen = [648, 1296, 1944, 3888];
@@ -33,22 +35,24 @@ if (EarlyExit)
     hDec.IterationTerminationCondition = 'Parity check satisfied';
 end
 hError = comm.ErrorRate;
+VecSnr = SnrStart + (0:SnrLen-1) * SnrStep;
 
 
 fprintf('CwLen = %d\n', CwLen);
 fprintf('Rate = %d\n', Rate);
 fprintf('MaxIter = %d\n', MaxIter);
 fprintf('EarlyExit = %d\n', EarlyExit);
+fprintf('VecSnr = %.2f:%.2f:%.2f\n', SnrStart, SnrStep, VecSnr(end));
 fprintf('\n');
 
-for snr = Snr
+for snr = VecSnr
     varNoise = 10^(-snr/10);
     errorStats = zeros(3, 1);
     numTotalBlks = 0;
     numTotalIters = 0;
 
-    while (errorStats(2) <= 1e4 && errorStats(3) <= 1e6)
-        txBits = randi([0 1], msgLen, 1);
+    while (errorStats(2) <= 1e3 && errorStats(3) <= 1e7)
+        txBits = randi([0, 1], msgLen, 1);
         encData = ldpcEncode(txBits, pcmB);
         modSig = 2 * encData - 1;
         rxSig = awgn(modSig, snr);

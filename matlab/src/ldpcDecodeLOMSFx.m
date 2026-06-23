@@ -1,14 +1,15 @@
-% ldpcDecodeLNMS    LDPC decode LLR data with layered normalized minimum-sum algorithm.
+% ldpcDecodeLOMSFx    LDPC decode LLR data with layered offset minimum-sum algorithm (fixed-point).
 %
 % Calling syntax:
-%     [y, numIter] = ldpcDecodeLNMS(x, pcm, maxIter, sc, earlyExit)
+%     [y, numIter] = ldpcDecodeLOMSFx(x, pcm, maxIter, os, earlyExit, cfgFx)
 %
 % Input:
 %     x: demapped LLR data, column vector
-%     pcm: struct for parity check matrix base
+%     pcm: struct for parity check matrix graph
 %     maxIter: maximum number of decoding iterations
-%     sc: scaling factor
+%     os: offset
 %     earlyExit: whether decoding terminates after all parity checks are satisfied
+%     cfgFx: configuration object for fixed-point
 %
 % Output:
 %     y: decoded data, column vector
@@ -20,7 +21,7 @@
 % LICENSE file in the root directory of this source tree.
 
 
-function [y, numIter] = ldpcDecodeLNMS(x, pcm, maxIter, sc, earlyExit)
+function [y, numIter] = ldpcDecodeLOMSFx(x, pcm, maxIter, os, earlyExit, cfgFx)
 
 % Check input arguments
 if (~isnumeric(x))
@@ -29,12 +30,27 @@ end
 if (~isnumeric(maxIter) || numel(maxIter) ~= 1 || maxIter <= 0)
     error('Error: maxIter must be a positive integer');
 end
-if (sc <= 0 || sc > 1)
-    error('Error: sc must be in (0, 1]');
+if (os < 0)
+    error('Error: os must be nonnegative');
 end
 
 
+% Fixed-point parameters
+FIN = cfgFx.F_IN;
+WIN = cfgFx.W_IN;
+WR = cfgFx.W_CHK;
+WQ = cfgFx.W_VAR;
+
+
 % Derive parameters
+osInt = round(os * 2^FIN);
+inMax = 2^(WIN-1)-1;
+inMin = -inMax;
+rMax = 2^(WR-1)-1;
+rMin = -rMax;
+qMax = 2^(WQ-1)-1;
+qMin = -qMax;
+
 z = pcm.z;
 tab = pcm.base;
 [rb, nb] = size(tab);
@@ -48,7 +64,8 @@ end
 
 % Decode LLR data
 % Initialize variable nodes
-vLQ = x;
+xIn = max(min(round(x * 2^FIN), inMax), inMin);
+vLQ = xIn;
 vLr = zeros(rb, n);
 prodLqSgn = zeros(z, 1);
 vLqAbsMin = zeros(z, 1);
@@ -63,8 +80,8 @@ for iter = 1:maxIter
     for ii = 1:rb
         % Update check nodes and variable nodes values for each layer
         prodLqSgn(:) = 1;
-        vLqAbsMin(:) = 1e12;
-        vLqAbsMin2(:) = 1e12;
+        vLqAbsMin(:) = qMax;
+        vLqAbsMin2(:) = qMax;
 
         for jj = 1:nb
             sh = tab(ii, jj);
@@ -72,15 +89,16 @@ for iter = 1:maxIter
                 for kk = 1:z
                     idx = (jj-1)*z + mod(kk-1+sh, z) + 1;
                     lq = vLQ(idx) - vLr(ii, idx);
+                    lq = max(min(lq, qMax), qMin);
                     lqAbs = abs(lq);
                     if (lq < 0)
                         prodLqSgn(kk) = -prodLqSgn(kk);
                     end
-                    if (lqAbs < vLqAbsMin(kk))
+                    if (lqAbs <= vLqAbsMin(kk))
                         vLqAbsMin2(kk) = vLqAbsMin(kk);
                         vLqAbsMin(kk) = lqAbs;
                         vLqAbsMinIdx(kk) = jj;
-                    elseif (lqAbs < vLqAbsMin2(kk))
+                    elseif (lqAbs <= vLqAbsMin2(kk))
                         vLqAbsMin2(kk) = lqAbs;
                     end
                 end
@@ -93,18 +111,19 @@ for iter = 1:maxIter
                 for kk = 1:z
                     idx = (jj-1)*z + mod(kk-1+sh, z) + 1;
                     lq = vLQ(idx) - vLr(ii, idx);
+                    lq = max(min(lq, qMax), qMin);
                     if (lq < 0)
                         lr = -prodLqSgn(kk);
                     else
                         lr = prodLqSgn(kk);
                     end
                     if (vLqAbsMinIdx(kk) == jj)
-                        lr = lr * vLqAbsMin2(kk) * sc;
+                        lr = lr * max(vLqAbsMin2(kk) - osInt, 0);
                     else
-                        lr = lr * vLqAbsMin(kk) * sc;
+                        lr = lr * max(vLqAbsMin(kk) - osInt, 0);
                     end
-                    vLr(ii, idx) = lr;
-                    vLQ(idx) = lq + lr;
+                    vLr(ii, idx) = max(min(lr, rMax), rMin);
+                    vLQ(idx) = max(min(lq + lr, qMax), qMin);
                 end
             end
         end
@@ -148,7 +167,7 @@ end
 %
 % Input:
 %     vi: input column vector
-%     s: right rotate shift number, negative number for zeros vector output
+%     s: right rotate shift number, must be non-negative
 %
 % Output:
 %     vo: rotated vector

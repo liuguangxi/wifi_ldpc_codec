@@ -47,7 +47,7 @@ PcmGraph getPcmGraph(int idxHldpc);
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeSPCore(const std::vector<double>& dataIn,
                                   const PcmGraph& pcm, int maxIter, bool earlyExit,
-                                  int &numIter);
+                                  int& numIter);
 
 
 //----------------------------------------------------------
@@ -67,7 +67,7 @@ std::vector<int> ldpcDecodeSPCore(const std::vector<double>& dataIn,
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeSP(const std::vector<double>& dataIn,
                               CodeMode mode, int maxIter, bool earlyExit,
-                              int &numIter);
+                              int& numIter);
 
 
 //----------------------------------------------------------
@@ -87,7 +87,7 @@ std::vector<int> ldpcDecodeSP(const std::vector<double>& dataIn,
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeMSCore(const std::vector<double>& dataIn,
                                   const PcmGraph& pcm, int maxIter, bool earlyExit,
-                                  int &numIter);
+                                  int& numIter);
 
 
 //----------------------------------------------------------
@@ -107,7 +107,7 @@ std::vector<int> ldpcDecodeMSCore(const std::vector<double>& dataIn,
 //----------------------------------------------------------
 std::vector<int> ldpcDecodeMS(const std::vector<double>& dataIn,
                               CodeMode mode, int maxIter, bool earlyExit,
-                              int &numIter);
+                              int& numIter);
 
 
 //----------------------------------------------------------
@@ -129,7 +129,7 @@ std::vector<int> ldpcDecodeMS(const std::vector<double>& dataIn,
 std::vector<int> ldpcDecodeNMSCore(const std::vector<double>& dataIn,
                                    const PcmGraph& pcm, int maxIter,
                                    double sc, bool earlyExit,
-                                   int &numIter);
+                                   int& numIter);
 
 
 //----------------------------------------------------------
@@ -151,7 +151,7 @@ std::vector<int> ldpcDecodeNMSCore(const std::vector<double>& dataIn,
 std::vector<int> ldpcDecodeNMS(const std::vector<double>& dataIn,
                                CodeMode mode, int maxIter,
                                double sc, bool earlyExit,
-                               int &numIter);
+                               int& numIter);
 
 
 //----------------------------------------------------------
@@ -173,7 +173,7 @@ std::vector<int> ldpcDecodeNMS(const std::vector<double>& dataIn,
 std::vector<int> ldpcDecodeOMSCore(const std::vector<double>& dataIn,
                                    const PcmGraph& pcm, int maxIter,
                                    double os, bool earlyExit,
-                                   int &numIter);
+                                   int& numIter);
 
 
 //----------------------------------------------------------
@@ -195,7 +195,7 @@ std::vector<int> ldpcDecodeOMSCore(const std::vector<double>& dataIn,
 std::vector<int> ldpcDecodeOMS(const std::vector<double>& dataIn,
                                CodeMode mode, int maxIter,
                                double os, bool earlyExit,
-                               int &numIter);
+                               int& numIter);
 
 
 //----------------------------------------------------------
@@ -203,7 +203,7 @@ std::vector<int> ldpcDecodeOMS(const std::vector<double>& dataIn,
 //
 // Input:
 //     dataIn: demapped LLR data
-//     pcm: parity check matrix graph
+//     pcm: parity check matrix
 //     maxIter: maximum number of decoding iterations
 //     sc: scaling factor
 //     earlyExit: whether decoding terminates after all parity checks are satisfied
@@ -217,7 +217,7 @@ std::vector<int> ldpcDecodeOMS(const std::vector<double>& dataIn,
 std::vector<int> ldpcDecodeLNMSCore(const std::vector<double>& dataIn,
                                     const PcmBase& pcm, int maxIter,
                                     double sc, bool earlyExit,
-                                    int &numIter);
+                                    int& numIter);
 
 
 //----------------------------------------------------------
@@ -239,7 +239,7 @@ std::vector<int> ldpcDecodeLNMSCore(const std::vector<double>& dataIn,
 std::vector<int> ldpcDecodeLNMS(const std::vector<double>& dataIn,
                                 CodeMode mode, int maxIter,
                                 double sc, bool earlyExit,
-                                int &numIter);
+                                int& numIter);
 
 
 //----------------------------------------------------------
@@ -247,7 +247,7 @@ std::vector<int> ldpcDecodeLNMS(const std::vector<double>& dataIn,
 //
 // Input:
 //     dataIn: demapped LLR data
-//     pcm: parity check matrix graph
+//     pcm: parity check matrix
 //     maxIter: maximum number of decoding iterations
 //     os: offset
 //     earlyExit: whether decoding terminates after all parity checks are satisfied
@@ -261,7 +261,7 @@ std::vector<int> ldpcDecodeLNMS(const std::vector<double>& dataIn,
 std::vector<int> ldpcDecodeLOMSCore(const std::vector<double>& dataIn,
                                     const PcmBase& pcm, int maxIter,
                                     double os, bool earlyExit,
-                                    int &numIter);
+                                    int& numIter);
 
 
 //----------------------------------------------------------
@@ -283,7 +283,7 @@ std::vector<int> ldpcDecodeLOMSCore(const std::vector<double>& dataIn,
 std::vector<int> ldpcDecodeLOMS(const std::vector<double>& dataIn,
                                 CodeMode mode, int maxIter,
                                 double os, bool earlyExit,
-                                int &numIter);
+                                int& numIter);
 
 
 #endif // LDPC_DECODER_H

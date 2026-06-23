@@ -1,7 +1,7 @@
 //==============================================================================
-// test_ldpcdec_ms.cpp
+// test_ldpcdec_lms_fx.cpp
 //
-// Performance test for LDPC decoder (SP/MS/NMS/OMS/LNMS/LOMS algorithm).
+// Performance test for LDPC decoder (SP/LNMS/LOMS/LNMSFx/LOMSFx algorithm).
 //------------------------------------------------------------------------------
 // Copyright (c) 2026 Guangxi Liu
 //
@@ -12,6 +12,7 @@
 
 #include "ldpc_encoder.h"
 #include "ldpc_decoder.h"
+#include "ldpc_decoder_fx.h"
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>
@@ -22,6 +23,7 @@ using namespace std;
 
 // Internal functions
 static vector<double> genVecSnr(double start, double step, int len);
+static vector<int> quantizeLLR(const vector<double>& vIn, int fIn, int wIn);
 static void perfAlgo();
 
 
@@ -44,7 +46,23 @@ static vector<double> genVecSnr(double start, double step, int len)
 }
 
 
-// LDPC encoder & decoder performance test for SP/MS/NMS/OMS/LNMS/LOMS
+// Quantize input LLR data
+vector<int> quantizeLLR(const vector<double>& vIn, int fIn, int wIn)
+{
+    const int inSc = (1 << fIn);
+    const int inMax = (1 << (wIn - 1)) - 1;
+    const int inMin = -inMax;
+
+    int n = vIn.size();
+    vector<int> vOut(n);
+    for (int i = 0; i < n; i++) {
+        vOut[i] = max(min(static_cast<int>(vIn[i] * inSc + 0.5), inMax), inMin);
+    }
+    return vOut;
+}
+
+
+// LDPC encoder & decoder performance test for SP/LNMS/LOMS/LNMSFx/LOMSFx
 void perfAlgo()
 {
     // Simulation parameters
@@ -59,6 +77,9 @@ void perfAlgo()
     double SnrStart = 1.0;
     double SnrStep = 0.25;
     int SnrLen = 9;
+    FxConfig CfgFx = {2, 6, 6, 8};
+    int ScalingFactorInt = static_cast<int>(ScalingFactor * 16 + 0.5);
+    int OffsetInt = static_cast<int>(Offset * (1 << CfgFx.F_IN) + 0.5);
 
 
     // Derived variables
@@ -81,18 +102,17 @@ void perfAlgo()
     vector<double> modSig(dataLen);
     vector<double> rxSig(dataLen);
     vector<double> demodData(dataLen);
+    vector<int> demodDataQ;
     vector<int> rxBitsSP;
-    vector<int> rxBitsMS;
-    vector<int> rxBitsNMS;
-    vector<int> rxBitsOMS;
     vector<int> rxBitsLNMS;
     vector<int> rxBitsLOMS;
+    vector<int> rxBitsLNMSFx;
+    vector<int> rxBitsLOMSFx;
     int numIterSP;
-    int numIterMS;
-    int numIterNMS;
-    int numIterOMS;
     int numIterLNMS;
     int numIterLOMS;
+    int numIterLNMSFx;
+    int numIterLOMSFx;
 
     printf("CwLen = %d\n", CwLen);
     printf("Rate = %d\n", Rate);
@@ -102,6 +122,8 @@ void perfAlgo()
     printf("Offset = %g\n", Offset);
     printf("EarlyExit = %d\n", EarlyExit);
     printf("VecSnr = %.2f:%.2f:%.2f\n", SnrStart, SnrStep, VecSnr[SnrLen - 1]);
+    printf("CfgFx = {F_IN:%d, W_IN:%d, W_CHK:%d, W_VAR:%d}\n",
+        CfgFx.F_IN, CfgFx.W_IN, CfgFx.W_CHK, CfgFx.W_VAR);
     printf("\n");
 
     for (int iSnr = 0; iSnr < SnrLen; iSnr++) {
@@ -110,18 +132,16 @@ void perfAlgo()
         double ampNoise = sqrt(varNoise);
         double numTotalBits = 0;
         double numErrorBitsSP = 0;
-        double numErrorBitsMS = 0;
-        double numErrorBitsNMS = 0;
-        double numErrorBitsOMS = 0;
         double numErrorBitsLNMS = 0;
         double numErrorBitsLOMS = 0;
+        double numErrorBitsLNMSFx = 0;
+        double numErrorBitsLOMSFx = 0;
         double numTotalBlks = 0;
         double numTotalItersSP = 0;
-        double numTotalItersMS = 0;
-        double numTotalItersNMS = 0;
-        double numTotalItersOMS = 0;
         double numTotalItersLNMS = 0;
         double numTotalItersLOMS = 0;
+        double numTotalItersLNMSFx = 0;
+        double numTotalItersLOMSFx = 0;
 
         while (numErrorBitsSP <= 1e3 && numTotalBits <= 1e7) {
             for (int i = 0; i < msgLen; i++)
@@ -138,63 +158,57 @@ void perfAlgo()
             for (int i = 0; i < dataLen; i++)
                 demodData[i] = -2 * rxSig[i] / varNoise;
 
+            demodDataQ = quantizeLLR(demodData, CfgFx.F_IN, CfgFx.W_IN);
+
             rxBitsSP = ldpcDecodeSPCore(demodData, pg, MaxIter, EarlyExit, numIterSP);
             numTotalItersSP += numIterSP;
-            rxBitsMS = ldpcDecodeMSCore(demodData, pg, MaxIter, EarlyExit, numIterMS);
-            numTotalItersMS += numIterMS;
-            rxBitsNMS = ldpcDecodeNMSCore(demodData, pg, MaxIter, ScalingFactor, EarlyExit, numIterNMS);
-            numTotalItersNMS += numIterNMS;
-            rxBitsOMS = ldpcDecodeOMSCore(demodData, pg, MaxIter, Offset, EarlyExit, numIterOMS);
-            numTotalItersOMS += numIterOMS;
             rxBitsLNMS = ldpcDecodeLNMSCore(demodData, pb, MaxIterLayer, ScalingFactor, EarlyExit, numIterLNMS);
             numTotalItersLNMS += numIterLNMS;
             rxBitsLOMS = ldpcDecodeLOMSCore(demodData, pb, MaxIterLayer, Offset, EarlyExit, numIterLOMS);
             numTotalItersLOMS += numIterLOMS;
+            rxBitsLNMSFx = ldpcDecodeLNMSFxCore(demodDataQ, pb, MaxIterLayer, ScalingFactorInt, EarlyExit, CfgFx, numIterLNMSFx);
+            numTotalItersLNMSFx += numIterLNMSFx;
+            rxBitsLOMSFx = ldpcDecodeLOMSFxCore(demodDataQ, pb, MaxIterLayer, OffsetInt, EarlyExit, CfgFx, numIterLOMSFx);
+            numTotalItersLOMSFx += numIterLOMSFx;
 
             numTotalBits += msgLen;
             for (int i = 0; i < msgLen; i++) {
                 if (txBits[i] != rxBitsSP[i])
                     numErrorBitsSP++;
-                if (txBits[i] != rxBitsMS[i])
-                    numErrorBitsMS++;
-                if (txBits[i] != rxBitsNMS[i])
-                    numErrorBitsNMS++;
-                if (txBits[i] != rxBitsOMS[i])
-                    numErrorBitsOMS++;
                 if (txBits[i] != rxBitsLNMS[i])
                     numErrorBitsLNMS++;
                 if (txBits[i] != rxBitsLOMS[i])
                     numErrorBitsLOMS++;
+                if (txBits[i] != rxBitsLNMSFx[i])
+                    numErrorBitsLNMSFx++;
+                if (txBits[i] != rxBitsLOMSFx[i])
+                    numErrorBitsLOMSFx++;
             }
             numTotalBlks++;
         }
 
         double berSP = numErrorBitsSP / numTotalBits;
         double avgItersSP = numTotalItersSP / numTotalBlks;
-        double berMS = numErrorBitsMS / numTotalBits;
-        double avgItersMS = numTotalItersMS / numTotalBlks;
-        double berNMS = numErrorBitsNMS / numTotalBits;
-        double avgItersNMS = numTotalItersNMS / numTotalBlks;
-        double berOMS = numErrorBitsOMS / numTotalBits;
-        double avgItersOMS = numTotalItersOMS / numTotalBlks;
         double berLNMS = numErrorBitsLNMS / numTotalBits;
         double avgItersLNMS = numTotalItersLNMS / numTotalBlks;
         double berLOMS = numErrorBitsLOMS / numTotalBits;
         double avgItersLOMS = numTotalItersLOMS / numTotalBlks;
+        double berLNMSFx = numErrorBitsLNMSFx / numTotalBits;
+        double avgItersLNMSFx = numTotalItersLNMSFx / numTotalBlks;
+        double berLOMSFx = numErrorBitsLOMSFx / numTotalBits;
+        double avgItersLOMSFx = numTotalItersLOMSFx / numTotalBlks;
 
         printf("SNR (dB) = %.2f\n", snr);
         printf("    BER (SP) = %.10f  (%.0f / %.0f)      AvgIters (SP) = %.2f\n",
                berSP, numErrorBitsSP, numTotalBits, avgItersSP);
-        printf("    BER (MS) = %.10f  (%.0f / %.0f)      AvgIters (MS) = %.2f\n",
-               berMS, numErrorBitsMS, numTotalBits, avgItersMS);
-        printf("    BER (NMS) = %.10f  (%.0f / %.0f)      AvgIters (NMS) = %.2f\n",
-               berNMS, numErrorBitsNMS, numTotalBits, avgItersNMS);
-        printf("    BER (OMS) = %.10f  (%.0f / %.0f)      AvgIters (OMS) = %.2f\n",
-               berOMS, numErrorBitsOMS, numTotalBits, avgItersOMS);
         printf("    BER (LNMS) = %.10f  (%.0f / %.0f)      AvgIters (LNMS) = %.2f\n",
                berLNMS, numErrorBitsLNMS, numTotalBits, avgItersLNMS);
         printf("    BER (LOMS) = %.10f  (%.0f / %.0f)      AvgIters (LOMS) = %.2f\n",
                berLOMS, numErrorBitsLOMS, numTotalBits, avgItersLOMS);
+        printf("    BER (LNMSFx) = %.10f  (%.0f / %.0f)      AvgIters (LNMSFx) = %.2f\n",
+               berLNMSFx, numErrorBitsLNMSFx, numTotalBits, avgItersLNMSFx);
+        printf("    BER (LOMSFx) = %.10f  (%.0f / %.0f)      AvgIters (LOMSFx) = %.2f\n",
+               berLOMSFx, numErrorBitsLOMSFx, numTotalBits, avgItersLOMSFx);
         printf("\n");
     }
 }

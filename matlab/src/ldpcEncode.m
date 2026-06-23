@@ -81,7 +81,7 @@ end
 
 
 
-% rotateVector    right rotate vector
+% rotateVector    Right rotate vector
 %
 % Calling syntax:
 %     vo = rotateVector(vi, s)

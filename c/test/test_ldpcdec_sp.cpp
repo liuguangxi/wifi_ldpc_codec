@@ -21,6 +21,7 @@ using namespace std;
 
 
 // Internal functions
+static vector<double> genVecSnr(double start, double step, int len);
 static void perfSP();
 
 
@@ -33,6 +34,16 @@ int main()
 }
 
 
+// Generate SNR vector
+static vector<double> genVecSnr(double start, double step, int len)
+{
+    vector<double> v(len);
+    for (int i = 0; i < len; i++)
+        v[i] = start + i * step;
+    return v;
+}
+
+
 // LDPC encoder & decoder performance test for SP
 void perfSP()
 {
@@ -40,9 +51,11 @@ void perfSP()
     unsigned Seed = 0;
     int CwLen = 2;    // 0, 1, 2, 3
     int Rate = 0;    // 0, 1, 2, 3
-    double VecSnr[] = {1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0};
     int MaxIter = 30;
     bool EarlyExit = true;
+    double SnrStart = 1.0;
+    double SnrStep = 0.25;
+    int SnrLen = 9;
 
 
     // Derived variables
@@ -50,10 +63,10 @@ void perfSP()
     const double VecRate[] = {1/2., 2/3., 3/4., 5/6.};
     int dataLen = VecLen[CwLen];
     int msgLen = static_cast<int>(dataLen * VecRate[Rate] + 0.5);
-    int lenVecSnr = sizeof(VecSnr) / sizeof(double);
     int cm = CwLen * 4 + Rate;
     const PcmBase& pb = Hldpc[cm];
     PcmGraph pg = getPcmGraph(cm);
+    vector<double> VecSnr = genVecSnr(SnrStart, SnrStep, SnrLen);
 
 
     // Main simulation loop
@@ -72,9 +85,10 @@ void perfSP()
     printf("Rate = %d\n", Rate);
     printf("MaxIter = %d\n", MaxIter);
     printf("EarlyExit = %d\n", EarlyExit);
+    printf("VecSnr = %.2f:%.2f:%.2f\n", SnrStart, SnrStep, VecSnr[SnrLen - 1]);
     printf("\n");
 
-    for (int iSnr = 0; iSnr < lenVecSnr; iSnr++) {
+    for (int iSnr = 0; iSnr < SnrLen; iSnr++) {
         double snr = VecSnr[iSnr];
         double varNoise = max(1e-10, pow(10.0, -snr/10));
         double ampNoise = sqrt(varNoise);
@@ -83,7 +97,7 @@ void perfSP()
         double numTotalBlks = 0;
         double numTotalIters = 0;
 
-        while (numErrorBits <= 1e4 && numTotalBits <= 1e6) {
+        while (numErrorBits <= 1e3 && numTotalBits <= 1e7) {
             for (int i = 0; i < msgLen; i++)
                 txBits[i] = udist(eng);
 

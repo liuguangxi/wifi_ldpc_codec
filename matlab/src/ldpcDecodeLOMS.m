@@ -14,7 +14,7 @@
 %     y: decoded data, column vector
 %     numIter: actual number of iterations performed
 
-% Copyright (c) 2019 Guangxi Liu
+% Copyright (c) 2019-2026 Guangxi Liu
 %
 % This source code is licensed under the MIT license found in the
 % LICENSE file in the root directory of this source tree.
@@ -79,7 +79,7 @@ for iter = 1:maxIter
                     if (lqAbs < vLqAbsMin(kk))
                         vLqAbsMin2(kk) = vLqAbsMin(kk);
                         vLqAbsMin(kk) = lqAbs;
-                        vLqAbsMinIdx(kk) = idx;
+                        vLqAbsMinIdx(kk) = jj;
                     elseif (lqAbs < vLqAbsMin2(kk))
                         vLqAbsMin2(kk) = lqAbs;
                     end
@@ -98,7 +98,7 @@ for iter = 1:maxIter
                     else
                         lr = prodLqSgn(kk);
                     end
-                    if (vLqAbsMinIdx(kk) == idx)
+                    if (vLqAbsMinIdx(kk) == jj)
                         lr = lr * max(vLqAbsMin2(kk) - os, 0);
                     else
                         lr = lr * max(vLqAbsMin(kk) - os, 0);
@@ -117,7 +117,10 @@ for iter = 1:maxIter
         for ii = 1:rb
             vParity0 = zeros(z, 1);
             for jj = 1:nb
-                vParity0 = mod(vParity0 + rotateVector(vLQHard((jj-1)*z+1 : jj*z), tab(ii, jj)), 2);
+                sh = tab(ii, jj);
+                if (sh >= 0)
+                    vParity0 = mod(vParity0 + rotateVector(vLQHard((jj-1)*z+1 : jj*z), sh), 2);
+                end
             end
             if (any(vParity0))
                 allZero = false;
@@ -138,7 +141,7 @@ end
 
 
 
-% rotateVector    right rotate vector
+% rotateVector    Right rotate vector
 %
 % Calling syntax:
 %     vo = rotateVector(vi, s)
@@ -153,10 +156,6 @@ end
 
 function vo = rotateVector(vi, s)
 
-if (s < 0)
-    vo = zeros(size(vi));
-else
-    vo = [vi(s+1:end); vi(1:s)];
-end
+vo = [vi(s+1:end); vi(1:s)];
 
 end

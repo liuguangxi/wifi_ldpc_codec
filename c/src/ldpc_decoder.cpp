@@ -169,7 +169,7 @@ PcmGraph getPcmGraph(int idxHldpc)
 //----------------------------------------------------------
 vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
                              const PcmGraph& pcm, int maxIter, bool earlyExit,
-                             int &numIter)
+                             int& numIter)
 {
     if (dataIn.size() != static_cast<vector<int>::size_type>(pcm.n)) {
         cerr << "Error: Invalid input data size" << dataIn.size()
@@ -254,7 +254,7 @@ vector<int> ldpcDecodeSPCore(const vector<double>& dataIn,
 //----------------------------------------------------------
 vector<int> ldpcDecodeSP(const vector<double>& dataIn,
                          CodeMode mode, int maxIter, bool earlyExit,
-                         int &numIter)
+                         int& numIter)
 {
     int idxHldpc = static_cast<int>(mode);
     PcmGraph pcm = getPcmGraph(idxHldpc);
@@ -279,7 +279,7 @@ vector<int> ldpcDecodeSP(const vector<double>& dataIn,
 //----------------------------------------------------------
 vector<int> ldpcDecodeMSCore(const vector<double>& dataIn,
                              const PcmGraph& pcm, int maxIter, bool earlyExit,
-                             int &numIter)
+                             int& numIter)
 {
     if (dataIn.size() != static_cast<vector<int>::size_type>(pcm.n)) {
         cerr << "Error: Invalid input data size" << dataIn.size()
@@ -380,7 +380,7 @@ vector<int> ldpcDecodeMSCore(const vector<double>& dataIn,
 //----------------------------------------------------------
 vector<int> ldpcDecodeMS(const vector<double>& dataIn,
                          CodeMode mode, int maxIter, bool earlyExit,
-                         int &numIter)
+                         int& numIter)
 {
     int idxHldpc = static_cast<int>(mode);
     PcmGraph pcm = getPcmGraph(idxHldpc);
@@ -407,7 +407,7 @@ vector<int> ldpcDecodeMS(const vector<double>& dataIn,
 vector<int> ldpcDecodeNMSCore(const vector<double>& dataIn,
                               const PcmGraph& pcm, int maxIter,
                               double sc, bool earlyExit,
-                              int &numIter)
+                              int& numIter)
 {
     if (dataIn.size() != static_cast<vector<int>::size_type>(pcm.n)) {
         cerr << "Error: Invalid input data size" << dataIn.size()
@@ -516,7 +516,7 @@ vector<int> ldpcDecodeNMSCore(const vector<double>& dataIn,
 vector<int> ldpcDecodeNMS(const vector<double>& dataIn,
                           CodeMode mode, int maxIter,
                           double sc, bool earlyExit,
-                          int &numIter)
+                          int& numIter)
 {
     int idxHldpc = static_cast<int>(mode);
     PcmGraph pcm = getPcmGraph(idxHldpc);
@@ -543,7 +543,7 @@ vector<int> ldpcDecodeNMS(const vector<double>& dataIn,
 vector<int> ldpcDecodeOMSCore(const vector<double>& dataIn,
                               const PcmGraph& pcm, int maxIter,
                               double os, bool earlyExit,
-                              int &numIter)
+                              int& numIter)
 {
     if (dataIn.size() != static_cast<vector<int>::size_type>(pcm.n)) {
         cerr << "Error: Invalid input data size" << dataIn.size()
@@ -652,7 +652,7 @@ vector<int> ldpcDecodeOMSCore(const vector<double>& dataIn,
 vector<int> ldpcDecodeOMS(const vector<double>& dataIn,
                           CodeMode mode, int maxIter,
                           double os, bool earlyExit,
-                          int &numIter)
+                          int& numIter)
 {
     int idxHldpc = static_cast<int>(mode);
     PcmGraph pcm = getPcmGraph(idxHldpc);
@@ -665,7 +665,7 @@ vector<int> ldpcDecodeOMS(const vector<double>& dataIn,
 //
 // Input:
 //     dataIn: demapped LLR data
-//     pcm: parity check matrix graph
+//     pcm: parity check matrix
 //     maxIter: maximum number of decoding iterations
 //     sc: scaling factor
 //     earlyExit: whether decoding terminates after all parity checks are satisfied
@@ -676,10 +676,10 @@ vector<int> ldpcDecodeOMS(const vector<double>& dataIn,
 // Return:
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
-std::vector<int> ldpcDecodeLNMSCore(const std::vector<double>& dataIn,
-                                    const PcmBase& pcm, int maxIter,
-                                    double sc, bool earlyExit,
-                                    int &numIter)
+vector<int> ldpcDecodeLNMSCore(const vector<double>& dataIn,
+                               const PcmBase& pcm, int maxIter,
+                               double sc, bool earlyExit,
+                               int& numIter)
 {
     int n = pcm.nb * pcm.z;
 
@@ -793,10 +793,10 @@ std::vector<int> ldpcDecodeLNMSCore(const std::vector<double>& dataIn,
 // Return:
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
-std::vector<int> ldpcDecodeLNMS(const std::vector<double>& dataIn,
-                                CodeMode mode, int maxIter,
-                                double sc, bool earlyExit,
-                                int &numIter)
+vector<int> ldpcDecodeLNMS(const vector<double>& dataIn,
+                           CodeMode mode, int maxIter,
+                           double sc, bool earlyExit,
+                           int& numIter)
 {
     int idxHldpc = static_cast<int>(mode);
     return ldpcDecodeLNMSCore(dataIn, Hldpc[idxHldpc], maxIter, sc, earlyExit, numIter);
@@ -808,7 +808,7 @@ std::vector<int> ldpcDecodeLNMS(const std::vector<double>& dataIn,
 //
 // Input:
 //     dataIn: demapped LLR data
-//     pcm: parity check matrix graph
+//     pcm: parity check matrix
 //     maxIter: maximum number of decoding iterations
 //     os: offset
 //     earlyExit: whether decoding terminates after all parity checks are satisfied
@@ -819,10 +819,10 @@ std::vector<int> ldpcDecodeLNMS(const std::vector<double>& dataIn,
 // Return:
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
-std::vector<int> ldpcDecodeLOMSCore(const std::vector<double>& dataIn,
-                                    const PcmBase& pcm, int maxIter,
-                                    double os, bool earlyExit,
-                                    int &numIter)
+vector<int> ldpcDecodeLOMSCore(const vector<double>& dataIn,
+                               const PcmBase& pcm, int maxIter,
+                               double os, bool earlyExit,
+                               int& numIter)
 {
     int n = pcm.nb * pcm.z;
 
@@ -936,10 +936,10 @@ std::vector<int> ldpcDecodeLOMSCore(const std::vector<double>& dataIn,
 // Return:
 //     decoded message data bits, value is 0 or 1
 //----------------------------------------------------------
-std::vector<int> ldpcDecodeLOMS(const std::vector<double>& dataIn,
-                                CodeMode mode, int maxIter,
-                                double os, bool earlyExit,
-                                int &numIter)
+vector<int> ldpcDecodeLOMS(const vector<double>& dataIn,
+                           CodeMode mode, int maxIter,
+                           double os, bool earlyExit,
+                           int& numIter)
 {
     int idxHldpc = static_cast<int>(mode);
     return ldpcDecodeLOMSCore(dataIn, Hldpc[idxHldpc], maxIter, os, earlyExit, numIter);

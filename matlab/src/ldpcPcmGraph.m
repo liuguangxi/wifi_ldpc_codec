@@ -84,7 +84,7 @@ end
 
 
 
-% cycPerm    generate cyclic permutation matrix
+% cycPerm    Generate cyclic permutation matrix
 %
 % Calling syntax:
 %     pmat = cycPerm(n, s)
