@@ -47,12 +47,13 @@ wire [`W_VAR-2:0] min_nxt;
 reg [`W_VAR-2:0] min_r;
 wire [`W_VAR-2:0] min2_nxt;
 reg [`W_VAR-2:0] min2_r;
-wire [`W_VAR+2:0] min_nxt_sc;
-wire [`W_VAR+2:0] min2_nxt_sc;
-wire [`W_VAR-1:0] min_nxt_os;
-wire [`W_VAR-1:0] min2_nxt_os;
-wire [`W_VAR-2:0] min_nxt_ms;
-wire [`W_VAR-2:0] min2_nxt_ms;
+wire [`W_VAR+2:0] lq_mag_sc;
+wire [`W_VAR-1:0] lq_mag_os;
+wire [`W_VAR-2:0] lq_mag_ms;
+wire [`W_VAR-2:0] min_ms_nxt;
+reg [`W_VAR-2:0] min_ms_r;
+wire [`W_VAR-2:0] min2_ms_nxt;
+reg [`W_VAR-2:0] min2_ms_r;
 
 
 // Update sign, minimum and second minimum
@@ -85,28 +86,30 @@ end
 
 // Min-sum algorithm
 generate
-    if (ALG == 0) begin : g_ms
-        // Min-sum
-        assign min_nxt_ms = min_nxt;
-        assign min2_nxt_ms = min2_nxt;
-    end
-
     if (ALG == 1) begin : g_nms
         // Normalized min-sum
-        assign min_nxt_sc = {1'b0, min_nxt, 3'd0} + {2'd0, min_nxt, 2'd0}
-                          + {4'd0, min_nxt & {(`W_VAR-1){sc_sel}}} + {{(`W_VAR-1){1'b0}}, 4'b1000};
-        assign min_nxt_ms = min_nxt_sc[`W_VAR+2:4];
-        assign min2_nxt_sc = {1'b0, min2_nxt, 3'd0} + {2'd0, min2_nxt, 2'd0}
-                           + {4'd0, min2_nxt & {(`W_VAR-1){sc_sel}}} + {{(`W_VAR-1){1'b0}}, 4'b1000};
-        assign min2_nxt_ms = min2_nxt_sc[`W_VAR+2:4];
+        assign lq_mag_sc = {1'b0, lq_sm_in[`W_VAR-2:0], 3'd0} + {2'd0, lq_sm_in[`W_VAR-2:0], 2'd0}
+                         + {4'd0, lq_sm_in[`W_VAR-2:0] & {(`W_VAR-1){sc_sel}}}
+                         + {{(`W_VAR-1){1'b0}}, 4'b1000};
+        assign lq_mag_ms = lq_mag_sc[`W_VAR+2:4];
     end
 
     if (ALG == 2) begin : g_oms
         // Offset min-sum
-        assign min_nxt_os = min_nxt - OS_INT;
-        assign min_nxt_ms = (min_nxt_os[`W_VAR-1]) ? {(`W_VAR-1){1'b0}} : min_nxt_os[`W_VAR-2:0];
-        assign min2_nxt_os = min2_nxt - OS_INT;
-        assign min2_nxt_ms = (min2_nxt_os[`W_VAR-1]) ? {(`W_VAR-1){1'b0}} : min2_nxt_os[`W_VAR-2:0];
+        assign lq_mag_os = lq_sm_in[`W_VAR-2:0] - OS_INT;
+        assign lq_mag_ms = (lq_mag_os[`W_VAR-1]) ? {(`W_VAR-1){1'b0}} : lq_mag_os[`W_VAR-2:0];
+    end
+
+    if (ALG >= 1) begin : g_nms_oms
+        assign min_ms_nxt = (le_min) ? lq_mag_ms : min_ms_r;
+        assign min2_ms_nxt = (le_min) ? min_ms_r : (le_min2) ? lq_mag_ms : min2_ms_r;
+
+        always @(posedge clk) begin
+            if (vld) begin
+                min_ms_r <= min_ms_nxt;
+                min2_ms_r <= min2_ms_nxt;
+            end
+        end
     end
 endgenerate
 
@@ -116,10 +119,27 @@ always @(posedge clk) begin
     if (eol) begin
         min_idx_out <= min_idx_nxt;
         sgn_out <= sgn_nxt;
-        min_out <= min_nxt_ms;
-        min2_out <= min2_nxt_ms;
     end
 end
+
+generate
+    if (ALG == 0) begin : g_ms_out
+        always @(posedge clk) begin
+            if (eol) begin
+                min_out <= min_nxt;
+                min2_out <= min2_nxt;
+            end
+        end
+    end
+    else begin : g_nms_oms_out
+        always @(posedge clk) begin
+            if (eol) begin
+                min_out <= min_ms_nxt;
+                min2_out <= min2_ms_nxt;
+            end
+        end
+    end
+endgenerate
 
 
 endmodule
