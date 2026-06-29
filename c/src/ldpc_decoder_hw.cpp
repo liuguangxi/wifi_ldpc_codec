@@ -262,7 +262,8 @@ vector<int> ldpcDecodeHwCore(const vector<int>& dataIn,
         // Parity checks
         if (cfgHw.HAS_PC) {
             if (earlyExit) {
-                if (parityCheckBase(vLQ, pcm))
+                pc = parityCheckBase(vLQ, pcm);
+                if (pc)
                     break;
             }
         }
