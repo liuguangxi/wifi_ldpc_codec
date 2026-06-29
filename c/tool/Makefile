@@ -7,7 +7,7 @@ BUILD_DIR := build
 COMMON_SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 COMMON_OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/src_%.o,$(COMMON_SRCS))
 
-TEST_SRCS := gen_tc_ldpcenc.cpp
+TEST_SRCS := gen_tc_ldpcenc.cpp gen_tc_ldpcdec.cpp
 TARGETS := $(TEST_SRCS:.cpp=)
 
 .PHONY: all clean
@@ -15,6 +15,9 @@ TARGETS := $(TEST_SRCS:.cpp=)
 all: $(TARGETS)
 
 gen_tc_ldpcenc: $(BUILD_DIR)/gen_tc_ldpcenc.o $(COMMON_OBJS)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+gen_tc_ldpcdec: $(BUILD_DIR)/gen_tc_ldpcdec.o $(COMMON_OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
