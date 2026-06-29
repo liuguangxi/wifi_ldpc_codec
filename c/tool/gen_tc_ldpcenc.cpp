@@ -26,7 +26,7 @@ using namespace std;
 
 // Global variables
 int num = 1;    // number of test cases, positive integer
-int mode = 0;    // code mode, 0-11:CodeMode{C648R12-C1944R56}, 12:all modes
+int mode = 0;    // code mode, 0-15:fixed mode, 16:random modes of 0-11, 17: random modes of 0-15
 int dataType = 2;    // data type, 0:all zeros, 1:all ones, 2:random
 const char *outFileName = "tc_1.txt";    // output file name
 unsigned seed = 0;    // seed for random number generator
