@@ -205,7 +205,7 @@ void genTestCase()
         lenK = TabK[codemode];
         lenN = TabN[codemode];
         scSel = (msAlg == 1 && codemode % 4 == 0) ? 1 : 0;
-        out << "Case " << n << "\n" << codemode << "\n";
+        out << dec << "Case " << n << "\n" << codemode << "\n";
         out << MaxIter << "\n" << scSel << "\n" << EarlyTerm << "\n";
 
         txBits.assign(lenK, 0);
@@ -233,15 +233,19 @@ void genTestCase()
 
         int lenSegN = lenN / 27;
         for (int i = 0; i < lenSegN; i++) {
-            for (int k = 0; k < 27; k++)
-                out << setw(3) << demodDataQ[27 * i + k] << " ";
+            for (int k = 0; k < 27; k++) {
+                int llr = demodDataQ[27 * i + k];
+                if (llr < 0)    llr += (1 << CfgHw.W_IN);
+                out << hex << setw(2) << setfill('0') << llr;
+                if (k < 26)    out << " ";
+            }
             out << "\n";
         }
 
         pb = rowPermutePcmBase(Hldpc[codemode], RPldpc[codemode]);
         rxBits = ldpcDecodeHwCore(demodDataQ, pb, MaxIter, scSel, EarlyTerm, CfgHw, numIter, pc);
 
-        out << numIter << "\n" << pc << "\n";
+        out << dec << numIter << "\n" << pc << "\n";
 
         int lenSegK = lenK / 27;
         for (int i = 0; i < lenSegK; i++) {
@@ -249,10 +253,9 @@ void genTestCase()
             for (int k = 0; k < 27; k++) {
                 x |= (rxBits[27 * i + k] << k);
             }
-            stringstream ss;
-            ss << hex << setw(7) << setfill('0') << x;
-            out << ss.str() << "\n";
+            out << hex << setw(7) << setfill('0') << x << "\n";
         }
+
         out << endl;
     }
     out.close();

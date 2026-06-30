@@ -24,8 +24,7 @@ parameter string TcDir = "../../case/ldpcenc";
 
 // Global variables
 string testfile;
-int cwlen;
-int rate;
+int mode;
 int nb;
 int kb;
 bit [26:0] cw_ref [200];
@@ -80,7 +79,7 @@ task automatic driver;
         @(posedge clk);    #Dly;
         vld_in = 1'b1;
         sop_in = (n == 0) ? 1'b1 : 1'b0;
-        mode_in = cwlen * 4 + rate;
+        mode_in = mode;
         data_in = cw_ref[n];
     end
     @(posedge clk);    #Dly;
@@ -116,7 +115,7 @@ task automatic compare;
     num_test++;
     for (n = 0; n < nb; n++) begin
         if (cw_ref[n] != cw_rtl[n]) begin
-            $display("[SIM]  Fail");
+            $display("[SIM]  Fail! data_out[%0d] mismatch", n);
             num_fail++;
             return;
         end
@@ -145,6 +144,8 @@ task automatic parse_tc;
     int idx;
     int state_rd;
     int case_num;
+    int cwlen;
+    int rate;
     int cnt;
 
     fn_tc = {TcDir, "/", testfile};
@@ -169,28 +170,21 @@ task automatic parse_tc;
             $display("[SIM]  Running testcase #%0d", case_num);
             state_rd = 1;
         end
-        else if (state_rd == 1) begin    // read CwLen
-            code = $sscanf(str_line, "%d", cwlen);
-            if (cwlen < 0 || cwlen > 2) begin
-                $display("[ERROR]  Invalid cwlen value %0d, should be 0 ~ 2.", cwlen);
+        else if (state_rd == 1) begin    // read `mode_in`
+            code = $sscanf(str_line, "%d", mode);
+            if (mode < 0 || mode > 11) begin
+                $display("[ERROR]  Invalid mode value %0d, should be 0 ~ 11.", mode);
                 $finish;
             end
-            $display("[SIM]  CwLen = %0d", cwlen);
+            cwlen = mode / 4;
+            rate = mode % 4;
+            $display("[SIM]  Input: mode_in = %0d", mode);
             nb = VecNb[cwlen];
+            kb = (rate == 0) ? nb/2 : (rate == 1) ? nb*2/3 : (rate == 2) ? nb*3/4 : nb*5/6;
+            cnt = 0;
             state_rd = 2;
         end
-        else if (state_rd == 2) begin    // read Rate
-            code = $sscanf(str_line, "%d", rate);
-            if (rate < 0 || rate > 3) begin
-                $display("[ERROR]  Invalid rate value %0d, should be 0 ~ 3.", rate);
-                $finish;
-            end
-            $display("[SIM]  Rate = %0d", rate);
-            cnt = 0;
-            kb = (rate == 0) ? nb/2 : (rate == 1) ? nb*2/3 : (rate == 2) ? nb*3/4 : nb*5/6;
-            state_rd = 3;
-        end
-        else if (state_rd == 3) begin    // read CW[i]
+        else if (state_rd == 2) begin    // read CW[i]
             code = $sscanf(str_line, "%x", cw_ref[cnt]);
             cnt++;
             if (cnt == nb) begin

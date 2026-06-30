@@ -145,7 +145,7 @@ void genTestCase()
         codemode = (mode == 16) ? udistuint(eng) % 12 : (mode == 17) ? udistuint(eng) % 16 : mode;
         lenK = TabK[codemode];
         lenSegN = TabN[codemode] / 27;
-        out << "Case " << n << "\n" << codemode / 4 << "\n" << codemode % 4 << "\n";
+        out << dec << "Case " << n << "\n" << codemode << "\n";
 
         msg.assign(lenK, 0);
         for (int i = 0; i < lenK; i++) {
@@ -158,10 +158,9 @@ void genTestCase()
             for (int k = 0; k < 27; k++) {
                 x |= (cw[27 * i + k] << k);
             }
-            stringstream ss;
-            ss << hex << setw(7) << setfill('0') << x;
-            out << ss.str() << "\n";
+            out << hex << setw(7) << setfill('0') << x << "\n";
         }
+
         out << endl;
     }
     out.close();
